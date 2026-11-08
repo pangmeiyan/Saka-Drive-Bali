@@ -1,0 +1,949 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Saka Drive Bali</title>
+<meta name="description" content="Saka Drive Bali — premium car rental with driver or self-drive. Book on WhatsApp.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://images.unsplash.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: split hero (copy + wipe-transition car slider with floating spec chips), quick search bar, FLIP-filtered fleet grid with detail+booking modal that writes a WhatsApp message, two-ways-to-rent cards, packages, 4-step process, rental terms tabs, delivery areas, CTA band. Light silver ground, deep navy ink, champagne accent; no black. Inertia scrolling via Lenis. */
+:root{
+  --bg:#F3F4F7; --paper:#FFFFFF; --ink:#101C35; --muted:#6A7387; --dim:#A2A9B8; --line:#E2E5EC;
+  --navy:#13284F; --navy-2:#1E3A6E; --sky:#E9EEF7; --champ:#C3A16A; --champ-soft:#F4ECDD;
+  --wa:#1FA855; --ok:#21805A; --bad:#B0443A; --bad-bg:#F8E3E0;
+  --font:"Plus Jakarta Sans","PingFang SC","Microsoft YaHei","Noto Sans SC",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --ease:cubic-bezier(.65,0,.35,1); --glide:cubic-bezier(.22,1,.36,1);
+  --r-xl:32px; --r-lg:22px; --r-md:14px;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+.lenis.lenis-smooth [data-lenis-prevent]{overscroll-behavior:contain}
+.lenis.lenis-stopped{overflow:hidden}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body.lock{overflow:hidden}
+img{max-width:100%;display:block}
+h1,h2,h3,h4{margin:0;font-weight:700;letter-spacing:-0.03em;line-height:1.08;text-wrap:balance}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--champ);outline-offset:3px}
+[hidden]{display:none!important}
+.wrap{max-width:1280px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+@media (min-width:800px){.wrap{padding-left:max(40px,env(safe-area-inset-left,0px));padding-right:max(40px,env(safe-area-inset-right,0px))}}
+.section{padding-block:clamp(72px,9vw,120px)}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:.78rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--navy-2)}
+.eyebrow::before{content:"";width:22px;height:2px;border-radius:2px;background:var(--champ)}
+.head{display:flex;justify-content:space-between;align-items:end;gap:24px;flex-wrap:wrap;margin-bottom:clamp(32px,4vw,48px)}
+.head > div{display:grid;gap:14px;max-width:640px}
+.head h2{font-size:clamp(2rem,4.2vw,3.4rem)}
+.head p{color:var(--muted)}
+.accent{color:var(--navy-2)}
+
+.js .rv{opacity:0;transform:translateY(36px);transition:opacity 1s var(--glide),transform 1.1s var(--glide)}
+.js .rv.in{opacity:1;transform:none}
+
+.ph{position:relative;overflow:hidden;background:linear-gradient(135deg,#DDE3EE,#EEF0F4)}
+.ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1.6s var(--glide),opacity .6s}
+.ph img.broken{opacity:0}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;height:50px;padding:0 24px;border-radius:999px;border:1px solid transparent;background:var(--navy);color:#fff;font-weight:600;font-size:.92rem;cursor:pointer;text-decoration:none;white-space:nowrap;transition:transform .6s var(--glide),background .5s,box-shadow .6s var(--glide),color .4s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 16px 30px -14px rgba(19,40,79,.6)}
+.btn svg{transition:transform .6s var(--glide)}
+.btn:hover svg.mv{transform:translateX(5px)}
+.btn.line{background:transparent;color:var(--ink);border-color:var(--ink)}
+.btn.line:hover{background:var(--ink);color:#fff}
+.btn.white{background:#fff;color:var(--navy)}
+.btn.wa{background:var(--wa)}
+.btn.wa:hover{box-shadow:0 16px 30px -14px rgba(31,168,85,.7)}
+.btn.sm{height:42px;padding:0 18px;font-size:.85rem}
+.btn[aria-disabled="true"]{opacity:.55}
+.round{width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:var(--paper);display:grid;place-items:center;cursor:pointer;transition:background .4s,color .4s,transform .5s var(--glide),border-color .4s}
+.round:hover{background:var(--navy);color:#fff;border-color:var(--navy);transform:scale(1.06)}
+.round.dark{background:var(--navy);color:#fff;border-color:var(--navy)}
+.seg{display:inline-flex;border-radius:999px;padding:3px;background:var(--paper);border:1px solid var(--line);position:relative}
+.seg button{position:relative;z-index:1;border:0;background:none;padding:6px 12px;border-radius:999px;font-size:.76rem;font-weight:600;color:var(--muted);cursor:pointer;transition:color .45s var(--glide)}
+.seg button[aria-pressed="true"]{color:#fff}
+.seg .knob{position:absolute;z-index:0;top:3px;bottom:3px;left:0;border-radius:999px;background:var(--navy);transition:transform .6s var(--glide),width .6s var(--glide)}
+
+/* header */
+.top{padding-top:max(14px,env(safe-area-inset-top,0px))}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:18px;height:72px}
+.logo{display:flex;align-items:center;gap:12px;background:none;border:0;padding:0;cursor:pointer;text-align:left;color:var(--ink);text-decoration:none}
+.logo .mk{width:44px;height:44px;border-radius:14px;background:var(--navy);color:#fff;display:grid;place-items:center}
+.logo b{display:block;font-size:1.15rem;font-weight:800;letter-spacing:-0.02em;line-height:1}
+.logo small{display:block;font-size:.6rem;letter-spacing:.24em;color:var(--muted);margin-top:4px;font-weight:600}
+.mainnav{display:flex;gap:4px;background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:4px}
+.mainnav button{border:0;background:none;padding:9px 18px;border-radius:999px;font-size:.88rem;font-weight:500;cursor:pointer;transition:background .4s,color .4s}
+.mainnav button:hover{background:var(--sky)}
+.mainnav button.on{background:var(--navy);color:#fff}
+.top-r{display:flex;align-items:center;gap:12px}
+.menu-btn{display:none}
+.mnav{background:var(--paper);border-radius:var(--r-lg);padding:6px 18px;display:grid;margin-bottom:12px;border:1px solid var(--line)}
+.mnav button{background:none;border:0;border-bottom:1px solid var(--line);text-align:left;padding:14px 0;font-size:1.05rem;font-weight:500;cursor:pointer}
+.mnav button:last-child{border-bottom:0}
+@media (max-width:1060px){.mainnav{display:none}.top-r .btn{display:none}.menu-btn{display:grid}}
+.snav{position:fixed;left:50%;top:calc(12px + env(safe-area-inset-top,0px));z-index:60;transform:translate(-50%,-160%);transition:transform .9s var(--glide);display:flex;align-items:center;gap:8px;padding:6px 6px 6px 8px;border-radius:999px;background:rgba(255,255,255,.82);backdrop-filter:blur(18px) saturate(1.3);-webkit-backdrop-filter:blur(18px) saturate(1.3);box-shadow:0 18px 40px -22px rgba(19,40,79,.45);border:1px solid rgba(255,255,255,.8);max-width:calc(100% - 24px)}
+.snav.show{transform:translate(-50%,0)}
+.snav .mk{width:36px;height:36px;border-radius:50%}
+.snav nav{display:flex}
+.snav nav button{border:0;background:none;padding:8px 14px;border-radius:999px;font-size:.84rem;font-weight:500;cursor:pointer;transition:background .4s}
+.snav nav button:hover{background:var(--sky)}
+@media (max-width:860px){.snav nav{display:none}}
+
+/* hero */
+.hero{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(24px,3vw,40px);padding-top:18px;align-items:stretch}
+.hero-l{display:flex;flex-direction:column;gap:24px;padding-top:clamp(12px,3vw,40px)}
+.badge{display:inline-flex;align-items:center;gap:10px;font-size:.86rem;font-weight:500;color:var(--muted)}
+.badge i{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--sky);color:var(--navy);font-style:normal}
+.hero h1{font-size:clamp(2.7rem,5.4vw,4.6rem);font-weight:800;letter-spacing:-0.045em;line-height:1}
+.hero-l > p{color:var(--muted);max-width:44ch;font-size:1.02rem}
+.cta{display:flex;gap:12px;flex-wrap:wrap}
+.stats{display:flex;gap:28px;flex-wrap:wrap}
+.stats div{display:grid}
+.stats b{font-size:1.6rem;font-weight:800;letter-spacing:-0.03em;font-variant-numeric:tabular-nums}
+.stats span{font-size:.8rem;color:var(--muted)}
+.thumbs-wrap{margin-top:auto;display:grid;gap:14px}
+.thumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.thumb{border:2px solid transparent;background:var(--paper);border-radius:var(--r-md);padding:5px;cursor:pointer;text-align:left;display:grid;gap:6px;transition:border-color .5s,transform .7s var(--glide),box-shadow .7s var(--glide)}
+.thumb:hover{transform:translateY(-4px)}
+.thumb.on{border-color:var(--navy);box-shadow:0 14px 24px -16px rgba(19,40,79,.6);transform:translateY(-4px)}
+.thumb .ph{aspect-ratio:4/3;border-radius:10px}
+.thumb:hover .ph img{transform:scale(1.08)}
+.thumb span{font-size:.76rem;font-weight:600;padding:0 4px 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.thumb-ctl{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.count{font-size:1.9rem;font-weight:800;letter-spacing:-0.03em;font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:6px}
+.count #cNow{display:inline-block}
+.count small{font-size:.9rem;color:var(--dim);font-weight:600}
+.dots{display:flex;gap:6px}
+.dots i{width:7px;height:7px;border-radius:50%;background:var(--line);transition:width .7s var(--glide),background .5s}
+.dots i.on{width:26px;border-radius:4px;background:var(--navy)}
+.arrows{display:flex;gap:8px}
+.hero-r{position:relative;min-height:clamp(480px,68vh,680px);border-radius:var(--r-xl);overflow:hidden;isolation:isolate;background:#2A3550;cursor:pointer}
+.layer{position:absolute;inset:0;z-index:-4;clip-path:inset(0 0 0 100%);transition:clip-path 1.35s var(--glide);will-change:clip-path}
+.layer.on{z-index:-2;clip-path:inset(0 0 0 0)}
+.layer.was{z-index:-3;clip-path:inset(0 0 0 0);transition:none}
+.layer img{position:absolute;left:0;top:-6%;width:100%;height:112%;object-fit:cover;transform:translateY(var(--py,0px)) scale(1.16);transition:transform 2.6s var(--glide);will-change:transform}
+.layer.on img,.layer.was img{transform:translateY(var(--py,0px)) scale(1.03)}
+.hero-r::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(16,28,53,.25) 0%,rgba(16,28,53,0) 35%,rgba(16,28,53,0) 60%,rgba(16,28,53,.5) 100%);pointer-events:none}
+.vtab{position:absolute;top:24px;left:24px;display:grid;justify-items:center;gap:8px}
+.vtab span{writing-mode:vertical-rl;transform:rotate(180deg);background:#fff;padding:14px 8px;border-radius:999px;font-size:.68rem;font-weight:700;letter-spacing:.16em}
+.vtab i{width:34px;height:34px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-style:normal}
+.float{position:absolute;display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.9);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:16px;padding:12px 18px;box-shadow:0 18px 40px -22px rgba(16,28,53,.6);transition:opacity .6s var(--glide),transform .9s var(--glide),filter .6s var(--glide)}
+.float.swap{opacity:0;transform:translateY(16px) scale(.95);filter:blur(6px)}
+.float .ic{width:36px;height:36px;border-radius:10px;background:var(--sky);color:var(--navy);display:grid;place-items:center;flex:none}
+.float b{display:block;font-size:1.15rem;font-weight:800;letter-spacing:-0.02em;line-height:1.1}
+.float small{display:block;font-size:.74rem;color:var(--muted)}
+.f1{top:12%;right:5%}.f2{top:52%;right:7%}
+.carname{position:absolute;left:24px;bottom:24px;color:#fff;transition:opacity .6s var(--glide),transform .9s var(--glide),filter .6s var(--glide)}
+.carname.swap{opacity:0;transform:translateY(20px);filter:blur(6px)}
+.carname small{display:block;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;opacity:.8;font-weight:600}
+.carname b{display:block;font-size:clamp(1.5rem,2.6vw,2.2rem);font-weight:800;letter-spacing:-0.03em}
+.perks{position:absolute;right:20px;bottom:20px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.perks span{display:flex;align-items:center;gap:8px;font-size:.78rem;font-weight:500;color:#fff;padding:9px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.45);background:rgba(16,28,53,.25);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);white-space:nowrap}
+@media (max-width:980px){.hero{grid-template-columns:1fr}.hero-r{min-height:440px;order:2}.hero-l{display:contents}.hero-l > *{order:1}.thumbs-wrap{order:3;margin-top:0}}
+@media (max-width:640px){.perks{display:none}.f2{display:none}.thumbs{grid-template-columns:repeat(4,minmax(120px,1fr));overflow-x:auto;padding-bottom:4px}.f1{top:auto;bottom:90px;right:16px}}
+
+/* search bar */
+.search{margin-top:22px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);padding:10px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) auto;gap:6px;align-items:center;box-shadow:0 30px 60px -44px rgba(19,40,79,.6)}
+.sf{display:grid;gap:2px;padding:8px 16px;border-radius:14px;min-width:0;transition:background .4s}
+.sf:hover{background:var(--bg)}
+.sf span.l{font-size:.72rem;color:var(--muted);font-weight:600}
+.sf input,.sf select{border:0;background:none;padding:0;font-size:.95rem;font-weight:600;width:100%;min-width:0}
+.sf input:focus,.sf select:focus{outline:none}
+.sf .seg{justify-self:start;margin-top:2px}
+@media (max-width:980px){.search{grid-template-columns:1fr 1fr}.search .btn{grid-column:1/-1}}
+@media (max-width:520px){.search{grid-template-columns:1fr}}
+
+/* fleet */
+.filters{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:22px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chips button{height:42px;padding:0 18px;border-radius:999px;border:1px solid var(--line);background:var(--paper);font-size:.88rem;font-weight:500;cursor:pointer;transition:background .5s var(--glide),color .5s,border-color .5s,transform .5s var(--glide)}
+.chips button:hover{transform:translateY(-2px)}
+.chips button[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
+.fleet{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.car{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);padding:12px;display:grid;gap:12px;cursor:pointer;transition:transform .8s var(--glide),box-shadow .8s var(--glide),opacity .3s var(--glide),border-color .5s;text-align:left}
+.car:hover{transform:translateY(-8px);box-shadow:0 34px 56px -34px rgba(19,40,79,.55);border-color:transparent}
+.car:hover .ph img{transform:scale(1.08)}
+.car.out{opacity:0;transform:scale(.94)}
+.car .ph{aspect-ratio:4/3;border-radius:16px}
+.car .tagc{position:absolute;top:10px;left:10px;z-index:1;font-size:.7rem;font-weight:600;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.92)}
+.car .nodrv{position:absolute;top:10px;right:10px;z-index:1;font-size:.68rem;font-weight:600;padding:4px 10px;border-radius:999px;background:var(--navy);color:#fff}
+.car-b{display:grid;gap:10px;padding:2px 6px 4px}
+.car h3{font-size:1.15rem;letter-spacing:-0.02em}
+.specs{display:flex;gap:12px;flex-wrap:wrap;font-size:.78rem;color:var(--muted)}
+.specs span{display:inline-flex;align-items:center;gap:5px}
+.car-f{display:flex;justify-content:space-between;align-items:center;gap:8px;padding-top:12px;border-top:1px solid var(--line)}
+.price small{display:block;font-size:.7rem;color:var(--muted)}
+.price b{font-size:1.1rem;font-weight:800;letter-spacing:-0.02em;font-variant-numeric:tabular-nums}
+.price b .u{font-size:.76rem;font-weight:500;color:var(--muted)}
+.price .pv{display:inline-block;transition:opacity .25s,transform .45s var(--glide),filter .3s}
+.price .pv.swap{opacity:0;transform:translateY(-8px);filter:blur(4px)}
+.car .go{width:40px;height:40px;border-radius:50%;background:var(--sky);color:var(--navy);display:grid;place-items:center;transition:background .5s,color .5s,transform .7s var(--glide)}
+.car:hover .go{background:var(--navy);color:#fff;transform:rotate(-45deg)}
+.empty{grid-column:1/-1;padding:40px;text-align:center;color:var(--muted);background:var(--paper);border-radius:var(--r-lg)}
+@media (max-width:1100px){.fleet{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:800px){.fleet{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:480px){.fleet{grid-template-columns:1fr}}
+
+/* ways */
+.ways{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.way{border-radius:var(--r-xl);padding:clamp(26px,3.6vw,44px);display:grid;gap:20px;align-content:start;transition:transform .8s var(--glide),box-shadow .8s var(--glide)}
+.way:hover{transform:translateY(-6px);box-shadow:0 34px 60px -40px rgba(19,40,79,.6)}
+.way.d{background:var(--navy);color:#fff}
+.way.s{background:var(--paper);border:1px solid var(--line)}
+.way .ic{width:56px;height:56px;border-radius:18px;display:grid;place-items:center;background:rgba(255,255,255,.12)}
+.way.s .ic{background:var(--sky);color:var(--navy)}
+.way h3{font-size:clamp(1.6rem,2.6vw,2.2rem)}
+.way p{opacity:.8}
+.way ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.way li{display:flex;gap:12px;align-items:flex-start;font-size:.94rem}
+.way li::before{content:"";width:20px;height:20px;flex:none;margin-top:2px;border-radius:50%;background:var(--champ) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M6 10.5l2.5 2.5L14 7.5' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/20px no-repeat}
+.way .from{display:flex;align-items:baseline;gap:8px;font-size:.86rem}
+.way .from b{font-size:1.8rem;font-weight:800;letter-spacing:-0.03em}
+.way .acts{display:flex;gap:10px;flex-wrap:wrap}
+@media (max-width:860px){.ways{grid-template-columns:1fr}}
+
+/* packages */
+.pkgs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.pkg{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;display:flex;flex-direction:column;transition:transform .8s var(--glide),box-shadow .8s var(--glide)}
+.pkg:hover{transform:translateY(-8px);box-shadow:0 34px 56px -34px rgba(19,40,79,.55)}
+.pkg:hover .ph img{transform:scale(1.07)}
+.pkg .ph{aspect-ratio:16/11}
+.pkg-b{padding:20px;display:grid;gap:10px;flex:1;align-content:start}
+.pkg h3{font-size:1.2rem}
+.pkg p{font-size:.88rem;color:var(--muted)}
+.pkg .pp{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:auto;padding:0 20px 20px;flex-wrap:wrap}
+.pkg .pp b{font-size:1.1rem;font-weight:800;letter-spacing:-0.02em}
+.pkg .pp small{display:block;font-size:.7rem;color:var(--muted)}
+.pkg .pp .u{font-size:.75rem;font-weight:500;color:var(--muted)}
+@media (max-width:1000px){.pkgs{grid-template-columns:1fr 1fr}}
+@media (max-width:540px){.pkgs{grid-template-columns:1fr}}
+
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.step{background:var(--paper);border-radius:var(--r-lg);padding:26px;display:grid;gap:12px;align-content:start;position:relative}
+.step .n{font-size:.82rem;font-weight:700;color:var(--champ);font-variant-numeric:tabular-nums}
+.step h3{font-size:1.2rem}
+.step p{font-size:.9rem;color:var(--muted)}
+.step:not(:last-child)::after{content:"";position:absolute;top:38px;right:-12px;width:8px;height:8px;border-top:2px solid var(--dim);border-right:2px solid var(--dim);transform:rotate(45deg);z-index:1}
+@media (max-width:900px){.steps{grid-template-columns:1fr 1fr}.step::after{display:none}}
+@media (max-width:520px){.steps{grid-template-columns:1fr}}
+
+/* terms */
+.terms{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:clamp(24px,4vw,56px);align-items:start}
+.terms-side{display:grid;gap:18px;position:sticky;top:100px;justify-items:start}
+.terms-side .seg button{padding:10px 18px;font-size:.88rem}
+.terms-side .note{background:var(--champ-soft);border-radius:var(--r-md);padding:16px 18px;font-size:.88rem;color:#6E5530}
+.tacc{list-style:none;margin:0;padding:0;display:grid;gap:10px;transition:opacity .35s var(--glide),transform .5s var(--glide)}
+.tacc.swap{opacity:0;transform:translateY(12px)}
+.tacc > li{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;transition:border-color .5s}
+.tacc > li.open{border-color:var(--navy)}
+.tacc button{width:100%;display:flex;justify-content:space-between;align-items:center;gap:14px;padding:20px 22px;background:none;border:0;cursor:pointer;text-align:left;font-size:1.05rem;font-weight:600}
+.tacc .pm{width:34px;height:34px;flex:none;border-radius:50%;background:var(--sky);display:grid;place-items:center;transition:transform .7s var(--glide),background .5s,color .5s}
+.tacc li.open .pm{transform:rotate(135deg);background:var(--navy);color:#fff}
+.tbody{display:grid;grid-template-rows:0fr;transition:grid-template-rows .8s var(--glide)}
+.tacc li.open .tbody{grid-template-rows:1fr}
+.tbody > div{overflow:hidden}
+.tbody ul{margin:0;padding:0 22px 22px 44px;display:grid;gap:8px;color:var(--muted);font-size:.94rem;opacity:0;transform:translateY(-8px);transition:opacity .5s var(--glide),transform .7s var(--glide)}
+.tacc li.open .tbody ul{opacity:1;transform:none;transition-delay:.12s}
+@media (max-width:900px){.terms{grid-template-columns:1fr}.terms-side{position:static}}
+
+/* areas */
+.areas{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:16px}
+.areas .ph{border-radius:var(--r-xl);min-height:420px}
+.area-card{background:var(--paper);border-radius:var(--r-xl);padding:clamp(24px,3.4vw,40px);display:grid;gap:18px;align-content:start}
+.area-card h2{font-size:clamp(1.8rem,3vw,2.4rem)}
+.alist{margin:0;display:grid}
+.alist div{display:flex;justify-content:space-between;gap:14px;padding:13px 0;border-bottom:1px solid var(--line);font-size:.94rem}
+.alist dt{font-weight:500}
+.alist dd{margin:0;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.alist dd.free{color:var(--ok)}
+.fine{font-size:.76rem;color:var(--muted)}
+@media (max-width:900px){.areas{grid-template-columns:1fr}.areas .ph{min-height:260px}}
+
+/* cta band */
+.band{position:relative;border-radius:var(--r-xl);overflow:hidden;isolation:isolate;color:#fff;padding:clamp(40px,7vw,90px) clamp(24px,5vw,64px);display:grid;gap:22px;justify-items:start}
+.band .ph{position:absolute;inset:0;z-index:-2}
+.band .ph img{top:-8%;height:116%;transform:translateY(var(--by,0px)) scale(1.04);transition:none}
+.band::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(19,40,79,.92) 0%,rgba(19,40,79,.6) 50%,rgba(19,40,79,.1) 100%)}
+.band h2{font-size:clamp(2rem,4.4vw,3.6rem);max-width:14ch}
+.band p{max-width:42ch;opacity:.85}
+
+/* footer */
+footer{padding-block:clamp(56px,7vw,80px) calc(32px + env(safe-area-inset-bottom,0px))}
+.foot{display:grid;grid-template-columns:2fr 1fr 1fr 1.4fr;gap:28px;padding-bottom:30px;border-bottom:1px solid var(--line)}
+.foot p{color:var(--muted);font-size:.9rem;max-width:34ch;margin-top:14px}
+.foot h4{font-size:.9rem;margin-bottom:12px;letter-spacing:-0.01em}
+.foot ul{list-style:none;margin:0;padding:0;display:grid;gap:8px;font-size:.88rem;color:var(--muted)}
+.foot button{background:none;border:0;padding:0;cursor:pointer;color:inherit;font:inherit;transition:color .3s}
+.foot button:hover{color:var(--ink)}
+.foot .sel{user-select:all;color:var(--ink);font-variant-numeric:tabular-nums}
+.legal{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:22px;font-size:.8rem;color:var(--muted)}
+@media (max-width:860px){.foot{grid-template-columns:1fr 1fr}}
+
+.wa-fab{position:fixed;right:calc(18px + env(safe-area-inset-right,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:50;display:inline-flex;align-items:center;gap:10px;height:54px;padding:0 22px 0 16px;border-radius:999px;background:var(--wa);color:#fff;font-weight:600;font-size:.9rem;text-decoration:none;box-shadow:0 18px 36px -14px rgba(31,168,85,.7);transition:transform .6s var(--glide)}
+.wa-fab:hover{transform:translateY(-3px) scale(1.02)}
+
+/* car modal */
+.modal{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:16px;background:rgba(16,28,53,.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);opacity:0;visibility:hidden;transition:opacity .5s var(--ease),visibility 0s .5s}
+.modal.open{opacity:1;visibility:visible;transition:opacity .5s var(--ease)}
+.m-panel{position:relative;width:min(1200px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:var(--paper);border-radius:var(--r-xl);display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);transform:translateY(48px) scale(.94);opacity:0;transition:transform .9s var(--glide),opacity .5s var(--glide);overscroll-behavior:contain}
+.modal.open .m-panel{transform:none;opacity:1}
+.m-info > *,.m-gal > *{opacity:0;transform:translateY(16px);transition:opacity .6s var(--glide),transform .8s var(--glide)}
+.modal.open .m-info > *,.modal.open .m-gal > *{opacity:1;transform:none;transition-delay:calc(140ms + var(--i,0) * 45ms)}
+.m-close{position:absolute;top:14px;right:14px;z-index:4}
+.m-gal{padding:14px;display:grid;gap:10px;align-content:start;position:sticky;top:0}
+.m-main{aspect-ratio:4/3;border-radius:var(--r-lg)}
+.m-main img{opacity:0;transform:scale(1.05);transition:opacity .8s var(--ease),transform 1.4s var(--glide)}
+.m-main img.show{opacity:1;transform:none}
+.m-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:2;width:42px;height:42px;border-radius:50%;border:0;background:rgba(255,255,255,.9);display:grid;place-items:center;cursor:pointer;transition:transform .5s var(--glide)}
+.m-nav:hover{transform:translateY(-50%) scale(1.08)}
+.m-nav.prev{left:12px}.m-nav.next{right:12px}
+.m-count{position:absolute;left:14px;bottom:14px;z-index:2;font-size:.76rem;font-weight:600;color:#fff;background:rgba(16,28,53,.55);padding:4px 11px;border-radius:999px}
+.m-thumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.m-thumbs button{aspect-ratio:4/3;border:0;padding:0;border-radius:10px;cursor:pointer;opacity:.55;transition:opacity .4s;outline:2px solid transparent;outline-offset:2px}
+.m-thumbs button.on{opacity:1;outline-color:var(--navy)}
+.m-spec{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.m-spec div{background:var(--bg);border-radius:12px;padding:10px 12px;display:grid}
+.m-spec span{font-size:.7rem;color:var(--muted)}
+.m-spec b{font-size:.9rem}
+.m-info{padding:clamp(22px,3vw,34px);display:grid;gap:16px;align-content:start}
+.m-info h3{font-size:clamp(1.7rem,3vw,2.3rem)}
+.m-info .desc{color:var(--muted);font-size:.94rem}
+.mode{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mode button{border:1.5px solid var(--line);background:var(--paper);border-radius:16px;padding:12px 14px;text-align:left;cursor:pointer;display:grid;gap:2px;transition:border-color .5s,background .5s}
+.mode button b{font-size:.92rem}
+.mode button span{font-size:.8rem;color:var(--muted)}
+.mode button[aria-pressed="true"]{border-color:var(--navy);background:var(--sky)}
+.mode button:disabled{opacity:.5;cursor:not-allowed}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fld{display:grid;gap:5px;min-width:0}
+.fld label,.fld .lbl{font-size:.76rem;color:var(--muted);font-weight:600}
+.fld input,.fld select{width:100%;min-width:0;background:var(--bg);border:1px solid transparent;border-radius:12px;padding:11px 13px;font-size:.92rem;transition:border-color .4s,background .4s}
+.fld input:focus,.fld select:focus{outline:none;border-color:var(--navy);background:#fff}
+.checks{display:flex;gap:8px;flex-wrap:wrap}
+.ck{display:flex;gap:8px;align-items:center;background:var(--bg);border-radius:12px;padding:10px 13px;font-size:.88rem;cursor:pointer}
+.ck input{width:17px;height:17px;accent-color:var(--navy)}
+.collapse{display:grid;grid-template-rows:1fr;transition:grid-template-rows .7s var(--glide),opacity .5s var(--glide)}
+.collapse > div{overflow:hidden;min-height:0}
+.collapse.shut{grid-template-rows:0fr;opacity:0}
+.self-only{display:grid;gap:12px;background:var(--champ-soft);border-radius:var(--r-md);padding:14px}
+.self-only .t{font-size:.82rem;font-weight:700;color:#6E5530}
+.self-only .ck{background:#fff}
+.sum{background:var(--navy);color:#fff;border-radius:var(--r-lg);padding:18px 20px;display:grid;gap:4px}
+.sum .row{display:flex;justify-content:space-between;gap:10px;font-size:.88rem;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.12);font-variant-numeric:tabular-nums}
+.sum .row span:first-child{opacity:.72}
+.sum .tot{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding-top:10px}
+.sum .tot b{font-size:1.7rem;font-weight:800;letter-spacing:-0.03em;color:#EAD7B1;font-variant-numeric:tabular-nums;display:inline-block}
+.sum .dep{font-size:.8rem;opacity:.8}
+.err{font-size:.86rem;color:var(--bad);background:var(--bad-bg);padding:10px 14px;border-radius:12px}
+.linkish{background:none;border:0;padding:0;color:var(--navy-2);font-weight:600;text-decoration:underline;cursor:pointer;font-size:inherit}
+@media (max-width:920px){.m-panel{grid-template-columns:1fr}.m-gal{position:static}}
+@media (max-width:480px){.grid2{grid-template-columns:1fr}.m-spec{grid-template-columns:1fr 1fr}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}.js .rv{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-ar" viewBox="0 0 18 18"><path d="M3 9h12M10 4l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-al" viewBox="0 0 18 18"><path d="M15 9H3M8 4L3 9l5 5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-ne" viewBox="0 0 18 18"><path d="M5 13L13 5M6.5 5H13v6.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-x" viewBox="0 0 18 18"><path d="M4 4l10 10M14 4L4 14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 18 18"><path d="M9 3v12M3 9h12" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  <symbol id="i-car" viewBox="0 0 24 24"><path d="M4 15l1.6-5.2A2 2 0 0 1 7.5 8.4h9a2 2 0 0 1 1.9 1.4L20 15M3 15h18v3a1 1 0 0 1-1 1h-1.5a1 1 0 0 1-1-1v-1h-11v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="7.5" cy="15.5" r="1" fill="currentColor"/><circle cx="16.5" cy="15.5" r="1" fill="currentColor"/></symbol>
+  <symbol id="i-seat" viewBox="0 0 16 16"><path d="M5 2h3a1 1 0 0 1 1 1v6h3a1 1 0 0 1 1 1v3H5a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.3"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 16 16"><path d="M3 3v10M8 3v10M13 3v5H3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></symbol>
+  <symbol id="i-bag" viewBox="0 0 16 16"><rect x="3" y="5" width="10" height="9" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M6 5V3h4v2" fill="none" stroke="currentColor" stroke-width="1.3"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 16 16"><path d="M8 1.8l5 2v3.8c0 3-2.1 5.4-5 6.6-2.9-1.2-5-3.6-5-6.6V3.8z" fill="none" stroke="currentColor" stroke-width="1.3"/></symbol>
+  <symbol id="i-tag" viewBox="0 0 18 18"><path d="M2.5 9.6V3.5a1 1 0 0 1 1-1h6.1l6 6-7.1 7.1z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="6.3" cy="6.3" r="1.2" fill="currentColor"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.5 9.5c.5 2.6 2.4 4.6 5 5.4l1.2-1.3 2 .9-.4 1.6c-3.8.3-8.1-3.6-8.2-7.6l1.6-.6.9 2z" fill="currentColor"/></symbol>
+  <symbol id="i-wheel" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="2.4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M3.8 11h5.8M14.4 11h5.8M12 14.4V20.5" stroke="currentColor" stroke-width="1.6"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 12h9M18 12v3M21 12v2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+  <symbol id="i-star" viewBox="0 0 16 16"><path d="M8 2l1.8 3.7 4 .6-2.9 2.8.7 4L8 11.2 4.4 13.1l.7-4L2.2 6.3l4-.6z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></symbol>
+</svg>
+
+<div class="snav" id="snav">
+  <button class="logo" type="button" data-go="top" aria-label="Saka Drive"><span class="mk"><svg width="20" height="20"><use href="#i-car"/></svg></span></button>
+  <nav aria-label="Sticky"><button type="button" data-go="fleet" data-i18n="nav_fleet">Fleet</button><button type="button" data-go="ways" data-i18n="nav_ways">How to rent</button><button type="button" data-go="packages" data-i18n="nav_pkg">Packages</button><button type="button" data-go="terms" data-i18n="nav_terms">Terms</button></nav>
+  <a class="btn wa sm wa-link" href="#" target="_blank" rel="noopener"><svg width="18" height="18"><use href="#i-chat"/></svg><span>WhatsApp</span></a>
+</div>
+
+<header class="wrap top" id="top">
+  <div class="top-in">
+    <button class="logo" type="button" data-go="top"><span class="mk"><svg width="22" height="22"><use href="#i-car"/></svg></span><span><b>Saka Drive</b><small>BALI · RENT & RIDE</small></span></button>
+    <nav class="mainnav" aria-label="Main">
+      <button type="button" class="on" data-go="top" data-i18n="nav_home">Home</button>
+      <button type="button" data-go="fleet" data-i18n="nav_fleet">Fleet</button>
+      <button type="button" data-go="ways" data-i18n="nav_ways">How to rent</button>
+      <button type="button" data-go="packages" data-i18n="nav_pkg">Packages</button>
+      <button type="button" data-go="terms" data-i18n="nav_terms">Terms</button>
+    </nav>
+    <div class="top-r">
+      <div class="seg" role="group" aria-label="Language" id="langSeg"><span class="knob"></span><button type="button" data-lang="en">EN</button><button type="button" data-lang="id">ID</button><button type="button" data-lang="zh">中文</button></div>
+      <a class="btn wa-link" href="#" target="_blank" rel="noopener"><svg width="18" height="18"><use href="#i-chat"/></svg><span data-i18n="cta_wa">Chat on WhatsApp</span></a>
+      <button class="round menu-btn" type="button" id="menuBtn" aria-expanded="false" aria-label="Menu"><svg width="18" height="18" viewBox="0 0 18 18"><path d="M2 6h14M2 12h14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button>
+    </div>
+  </div>
+  <div class="mnav" id="mobileNav" hidden>
+    <button type="button" data-go="fleet" data-i18n="nav_fleet">Fleet</button>
+    <button type="button" data-go="ways" data-i18n="nav_ways">How to rent</button>
+    <button type="button" data-go="packages" data-i18n="nav_pkg">Packages</button>
+    <button type="button" data-go="terms" data-i18n="nav_terms">Terms</button>
+  </div>
+</header>
+
+<main>
+<section class="wrap">
+  <div class="hero">
+    <div class="hero-l">
+      <span class="badge"><i><svg width="14" height="14"><use href="#i-shield"/></svg></i><span data-i18n="hero_badge">Insured cars · Bali-wide delivery</span></span>
+      <h1 data-i18n-html="hero_title">Your journey, our drive. <span class="accent">Rent the best</span> in Bali.</h1>
+      <p data-i18n="hero_sub">Luxury sedans, SUVs and family MPVs, with a professional driver or as self-drive. Pick a car and send your booking on WhatsApp in one tap.</p>
+      <div class="cta">
+        <button class="btn" type="button" data-go="fleet"><span data-i18n="hero_cta1">Browse the fleet</span><svg class="mv" width="18" height="18"><use href="#i-ar"/></svg></button>
+        <button class="btn line" type="button" data-go="packages"><span data-i18n="hero_cta2">See packages</span></button>
+      </div>
+      <div class="stats">
+        <div><b>8</b><span data-i18n="st1">premium cars</span></div>
+        <div><b>2</b><span data-i18n="st2">ways to rent</span></div>
+        <div><b>24/7</b><span data-i18n="st3">WhatsApp support</span></div>
+      </div>
+      <div class="thumbs-wrap">
+        <div class="thumbs" id="thumbs"></div>
+        <div class="thumb-ctl">
+          <div class="dots" id="dots"></div>
+          <div class="count"><span id="cNow">01</span><small>/ 04</small></div>
+          <div class="arrows"><button class="round" type="button" id="hPrev" aria-label="Previous car"><svg width="18" height="18"><use href="#i-al"/></svg></button><button class="round dark" type="button" id="hNext" aria-label="Next car"><svg width="18" height="18"><use href="#i-ar"/></svg></button></div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-r" id="heroR">
+      <div class="vtab"><span data-i18n="featured">FEATURED CAR</span><i><svg width="14" height="14"><use href="#i-star"/></svg></i></div>
+      <div class="float f1" id="f1"><span class="ic"><svg width="18" height="18"><use href="#i-gear"/></svg></span><div><b id="f1b"></b><small id="f1s"></small></div></div>
+      <div class="float f2" id="f2"><span class="ic"><svg width="18" height="18"><use href="#i-tag"/></svg></span><div><b id="f2b"></b><small data-i18n="with_driver_day">per day, with driver</small></div></div>
+      <div class="carname" id="carName"><small id="cnCat"></small><b id="cnName"></b></div>
+      <div class="perks">
+        <span data-i18n="pk1">Free cancellation 48h</span><span data-i18n="pk2">Insurance included</span><span data-i18n="pk3">GPS-tracked cars</span><span data-i18n="pk4">Airport delivery</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="search rv" id="search">
+    <label class="sf"><span class="l" data-i18n="f_from">Pick-up date</span><input type="date" id="sFrom"></label>
+    <label class="sf"><span class="l" data-i18n="f_to">Return date</span><input type="date" id="sTo"></label>
+    <label class="sf"><span class="l" data-i18n="f_loc">Pick-up location</span><select id="sLoc"></select></label>
+    <div class="sf"><span class="l" data-i18n="f_mode">How do you want to drive?</span><div class="seg" role="group" id="sMode"><span class="knob"></span><button type="button" data-m="driver" aria-pressed="true" data-i18n="m_driver">With driver</button><button type="button" data-m="self" aria-pressed="false" data-i18n="m_self">Self-drive</button></div></div>
+    <button class="btn" type="button" id="sGo"><span data-i18n="s_go">Find a car</span><svg class="mv" width="18" height="18"><use href="#i-ar"/></svg></button>
+  </div>
+</section>
+
+<section class="section wrap" id="fleet">
+  <div class="head rv">
+    <div><span class="eyebrow" data-i18n="fl_eye">Our fleet</span><h2 data-i18n-html="fl_title">Choose your <span class="accent">ride</span></h2><p data-i18n="fl_sub">Every car is under five years old, cleaned after every trip and checked before handover.</p></div>
+  </div>
+  <div class="filters rv">
+    <div class="chips" id="cats"><button type="button" data-c="all" aria-pressed="true" data-i18n="c_all">All cars</button><button type="button" data-c="lux" aria-pressed="false" data-i18n="c_lux">Luxury</button><button type="button" data-c="suv" aria-pressed="false" data-i18n="c_suv">SUV</button><button type="button" data-c="mpv" aria-pressed="false" data-i18n="c_mpv">MPV & family</button></div>
+    <div class="seg" role="group" id="fMode"><span class="knob"></span><button type="button" data-m="driver" aria-pressed="true" data-i18n="m_driver">With driver</button><button type="button" data-m="self" aria-pressed="false" data-i18n="m_self">Self-drive</button></div>
+  </div>
+  <div class="fleet rv-s" id="fleetGrid"></div>
+</section>
+
+<section class="section wrap" id="ways" style="padding-top:0">
+  <div class="head rv"><div><span class="eyebrow" data-i18n="w_eye">Two ways to rent</span><h2 data-i18n-html="w_title">Sit back, <span class="accent">or take the wheel</span></h2></div></div>
+  <div class="ways rv-s">
+    <div class="way d">
+      <span class="ic"><svg width="26" height="26"><use href="#i-wheel"/></svg></span>
+      <h3 data-i18n="wd_t">With a driver</h3>
+      <p data-i18n="wd_p">The easiest way to see Bali. Our drivers know the roads, the shortcuts and where to park at every temple.</p>
+      <ul><li data-i18n="wd_1">10 hours per day, overtime 10% of the daily rate per hour</li><li data-i18n="wd_2">Fuel, parking and tolls included within the service zone</li><li data-i18n="wd_3">English-speaking driver, licensed and insured</li><li data-i18n="wd_4">No deposit and no licence needed</li></ul>
+      <div class="from"><span data-i18n="from">from</span><b data-idr="1300000"></b><span data-i18n="per_day">/ day</span></div>
+      <div class="acts"><button class="btn white" type="button" data-setmode="driver"><span data-i18n="see_cars">See cars with driver</span><svg class="mv" width="18" height="18"><use href="#i-ar"/></svg></button></div>
+    </div>
+    <div class="way s">
+      <span class="ic"><svg width="26" height="26"><use href="#i-key"/></svg></span>
+      <h3 data-i18n="ws_t">Self-drive</h3>
+      <p data-i18n="ws_p">Drive yourself on your own schedule. Available for selected cars, with ID check and a refundable deposit.</p>
+      <ul><li data-i18n="ws_1">24-hour rental, delivered and collected at your hotel</li><li data-i18n="ws_2">Indonesian: KTP + SIM A. Foreign: passport + International Driving Permit</li><li data-i18n="ws_3">Refundable deposit from Rp 2.5 million, returned within 24 hours</li><li data-i18n="ws_4">Insurance included, with own-risk per incident</li></ul>
+      <div class="from"><span data-i18n="from">from</span><b data-idr="850000"></b><span data-i18n="per_day">/ day</span></div>
+      <div class="acts"><button class="btn" type="button" data-setmode="self"><span data-i18n="see_self">See self-drive cars</span><svg class="mv" width="18" height="18"><use href="#i-ar"/></svg></button><button class="btn line" type="button" data-go="terms" data-i18n="read_terms">Read the terms</button></div>
+    </div>
+  </div>
+</section>
+
+<section class="section wrap" id="packages" style="padding-top:0">
+  <div class="head rv"><div><span class="eyebrow" data-i18n="p_eye">Packages</span><h2 data-i18n-html="p_title">Ready-made trips, <span class="accent">one message away</span></h2><p data-i18n="p_sub">All packages include a driver. Prices for an Innova Zenix; ask for other cars on WhatsApp.</p></div></div>
+  <div class="pkgs rv-s" id="pkgs"></div>
+</section>
+
+<section class="section wrap" style="padding-top:0">
+  <div class="head rv"><div><span class="eyebrow" data-i18n="h_eye">How it works</span><h2 data-i18n-html="h_title">From message <span class="accent">to keys in hand</span></h2></div></div>
+  <div class="steps rv-s">
+    <div class="step"><span class="n">01</span><h3 data-i18n="h1t">Pick a car</h3><p data-i18n="h1p">Choose the car, dates and pick-up point. The price estimate updates as you go.</p></div>
+    <div class="step"><span class="n">02</span><h3 data-i18n="h2t">Send on WhatsApp</h3><p data-i18n="h2p">One tap sends your booking details. We reply within 15 minutes, 7am to 10pm.</p></div>
+    <div class="step"><span class="n">03</span><h3 data-i18n="h3t">Confirm & verify</h3><p data-i18n="h3p">Pay a 30% down payment. For self-drive, send your ID photos and the deposit.</p></div>
+    <div class="step"><span class="n">04</span><h3 data-i18n="h4t">Car delivered</h3><p data-i18n="h4p">We deliver to your hotel or the airport, check the car with you on video, and you drive off.</p></div>
+  </div>
+</section>
+
+<section class="section wrap" id="terms" style="padding-top:0">
+  <div class="terms">
+    <div class="terms-side rv">
+      <span class="eyebrow" data-i18n="t_eye">Rental terms</span>
+      <h2 style="font-size:clamp(2rem,3.6vw,3rem)" data-i18n-html="t_title">Clear rules, <span class="accent">no surprises</span></h2>
+      <div class="seg" role="group" id="tMode"><span class="knob"></span><button type="button" data-m="driver" aria-pressed="true" data-i18n="m_driver">With driver</button><button type="button" data-m="self" aria-pressed="false" data-i18n="m_self">Self-drive</button></div>
+      <p class="note" data-i18n="t_note">Example terms for this demo. The rental owner sets the final rules and amounts.</p>
+    </div>
+    <ul class="tacc rv" id="tacc"></ul>
+  </div>
+</section>
+
+<section class="section wrap" style="padding-top:0">
+  <div class="areas rv">
+    <div class="ph"><img src="https://images.unsplash.com/photo-1709525787985-0abbbc3ed199?auto=format&fit=crop&w=1600&q=80" alt="A street in Bali with a white car and a scooter" loading="lazy"></div>
+    <div class="area-card">
+      <span class="eyebrow" data-i18n="a_eye">Delivery areas</span>
+      <h2 data-i18n-html="a_title">We bring the car <span class="accent">to you</span></h2>
+      <dl class="alist" id="alist"></dl>
+      <p class="fine" data-i18n="a_note">With-driver trips outside the service zone (Kintamani, Bedugul, East Bali) add Rp 250,000 per day.</p>
+    </div>
+  </div>
+</section>
+
+<section class="wrap">
+  <div class="band rv" id="band">
+    <div class="ph"><img src="https://images.unsplash.com/photo-1634636208509-63bcd2a1b13f?auto=format&fit=crop&w=2000&q=80" alt="" loading="lazy"></div>
+    <span class="eyebrow" style="color:#E7D3AA" data-i18n="b_eye">Ready when you are</span>
+    <h2 data-i18n="b_title">Your car is one message away</h2>
+    <p data-i18n="b_sub">Tell us your dates and where you are staying. We handle the rest.</p>
+    <a class="btn wa wa-link" href="#" target="_blank" rel="noopener"><svg width="18" height="18"><use href="#i-chat"/></svg><span data-i18n="cta_wa">Chat on WhatsApp</span></a>
+  </div>
+</section>
+</main>
+
+<footer class="wrap">
+  <div class="foot">
+    <div><span class="logo"><span class="mk"><svg width="22" height="22"><use href="#i-car"/></svg></span><span><b>Saka Drive</b><small>BALI · RENT & RIDE</small></span></span><p data-i18n="ft_p">Premium car rental in Bali, with driver or self-drive. Booked on WhatsApp, delivered to your door.</p></div>
+    <div><h4 data-i18n="ft_menu">Menu</h4><ul><li><button type="button" data-go="fleet" data-i18n="nav_fleet">Fleet</button></li><li><button type="button" data-go="ways" data-i18n="nav_ways">How to rent</button></li><li><button type="button" data-go="packages" data-i18n="nav_pkg">Packages</button></li><li><button type="button" data-go="terms" data-i18n="nav_terms">Terms</button></li></ul></div>
+    <div><h4 data-i18n="ft_hours">Hours</h4><ul><li data-i18n="ft_h1">Office 07:00 – 22:00</li><li data-i18n="ft_h2">Roadside help 24/7</li></ul></div>
+    <div><h4 data-i18n="ft_contact">Contact</h4><ul><li>WhatsApp <span class="sel">+62 812 0000 0000</span></li><li>Email <span class="sel">hello@sakadrive.example</span></li><li>Jl. Sunset Road, Kuta, Bali</li></ul></div>
+  </div>
+  <div class="legal"><span>© Saka Drive Bali</span><span data-i18n="ft_demo">Demo website. Photos from Unsplash stand in for the real fleet; numbers and address are placeholders.</span></div>
+</footer>
+
+<a class="wa-fab wa-link" href="#" target="_blank" rel="noopener"><svg width="24" height="24"><use href="#i-chat"/></svg><span data-i18n="fab">Book on WhatsApp</span></a>
+
+<div class="modal" id="carModal" role="dialog" aria-modal="true" aria-labelledby="mName" data-lenis-prevent>
+  <div class="m-panel">
+    <button class="round m-close" type="button" data-close aria-label="Close"><svg width="18" height="18"><use href="#i-x"/></svg></button>
+    <div class="m-gal">
+      <div class="ph m-main" id="mMain">
+        <button class="m-nav prev" type="button" id="mPrev" aria-label="Previous photo"><svg width="18" height="18"><use href="#i-al"/></svg></button>
+        <button class="m-nav next" type="button" id="mNext" aria-label="Next photo"><svg width="18" height="18"><use href="#i-ar"/></svg></button>
+        <span class="m-count" id="mCount"></span>
+      </div>
+      <div class="m-thumbs" id="mThumbs"></div>
+      <div class="m-spec" id="mSpec"></div>
+    </div>
+    <div class="m-info">
+      <span class="eyebrow" id="mCat"></span>
+      <h3 id="mName"></h3>
+      <p class="desc" id="mDesc"></p>
+      <div class="mode" id="mMode">
+        <button type="button" data-m="driver"><b data-i18n="m_driver">With driver</b><span id="mRateD"></span></button>
+        <button type="button" data-m="self"><b data-i18n="m_self">Self-drive</b><span id="mRateS"></span></button>
+      </div>
+      <div class="grid2">
+        <div class="fld"><label for="mFrom" data-i18n="f_from">Pick-up date</label><input type="date" id="mFrom"></div>
+        <div class="fld"><label for="mTo" data-i18n="f_to">Return date</label><input type="date" id="mTo"></div>
+        <div class="fld"><label for="mLoc" data-i18n="f_loc">Pick-up location</label><select id="mLoc"></select></div>
+        <div class="fld"><label for="mPax" data-i18n="f_pax">Passengers</label><select id="mPax"></select></div>
+      </div>
+      <div class="fld"><span class="lbl" data-i18n="f_extras">Extras</span><div class="checks"><label class="ck"><input type="checkbox" id="xSeat"><span data-i18n="x_seat">Child seat (+Rp 100k/day)</span></label><label class="ck" id="xProtWrap"><input type="checkbox" id="xProt"><span data-i18n="x_prot">Zero own-risk cover (+Rp 250k/day)</span></label></div></div>
+      <div class="collapse" id="selfWrap"><div><div class="self-only">
+        <span class="t" data-i18n="sv_t">Self-drive requirements</span>
+        <div class="checks"><label class="ck"><input type="radio" name="nat" value="wni" id="natW" checked><span data-i18n="nat_w">Indonesian (KTP + SIM A)</span></label><label class="ck"><input type="radio" name="nat" value="wna" id="natA"><span data-i18n="nat_a">Foreign (passport + IDP)</span></label></div>
+        <label class="ck"><input type="checkbox" id="agree"><span><span data-i18n="agree">I agree to the self-drive terms and the refundable deposit.</span> <button type="button" class="linkish" id="seeTerms" data-i18n="see">See terms</button></span></label>
+      </div></div></div>
+      <div class="fld"><label for="mNameIn" data-i18n="f_name">Your name</label><input type="text" id="mNameIn" autocomplete="name"></div>
+      <div class="sum" id="sum"></div>
+      <div class="err" id="mErr" hidden></div>
+      <a class="btn wa" id="mWa" href="#" target="_blank" rel="noopener"><svg width="18" height="18"><use href="#i-chat"/></svg><span data-i18n="book_wa">Book via WhatsApp</span></a>
+      <p class="fine" data-i18n="m_fine">Estimate in IDR. Final price and availability are confirmed on WhatsApp.</p>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+<script>
+(function(){
+"use strict";
+document.documentElement.classList.add("js");
+const WA="6281200000000";
+const U=(id,w)=>"https://images.unsplash.com/photo-"+id+"?auto=format&fit=crop&w="+(w||1200)+"&q=80";
+const CARS=[
+ {id:"rr",name:"Range Rover",cat:["lux","suv"],catKey:"cl_lsuv",seats:5,bags:4,gear:"auto",fuel:"diesel",year:2023,d:6500000,s:0,dep:0,photos:["1758545241974-ea76f6e8edfa","1767274592417-c986b7619c8c","1758393363057-2b4d67743ef0","1773960407606-7f5331ad1316"]},
+ {id:"gclass",name:"Mercedes-Benz G-Class",cat:["lux","suv"],catKey:"cl_lsuv",seats:5,bags:3,gear:"auto",fuel:"petrol",year:2022,d:7500000,s:0,dep:0,photos:["1634636208509-63bcd2a1b13f","1667893530449-e58102223524","1612368812851-5f7baf8c0d1d"]},
+ {id:"lc",name:"Toyota Land Cruiser",cat:["suv"],catKey:"cl_suv",seats:7,bags:5,gear:"auto",fuel:"diesel",year:2022,d:5500000,s:4200000,dep:15000000,photos:["1709620435533-56483034bdd4","1650530579355-7ad9d4766043","1554841649-de947c4b954a","1616196334411-1d8d09708ca6"]},
+ {id:"alphard",name:"Toyota Alphard",cat:["lux","mpv"],catKey:"cl_lmpv",seats:7,bags:4,gear:"auto",fuel:"petrol",year:2023,d:3200000,s:0,dep:0,photos:["1675311183084-755007dbb223","1675311149330-ff19be4aa6be","1770290405640-5daf7593c92a","1652860316277-370ca5b1b1df"]},
+ {id:"eclass",name:"Mercedes-Benz E-Class",cat:["lux"],catKey:"cl_sedan",seats:4,bags:3,gear:"auto",fuel:"petrol",year:2022,d:3500000,s:0,dep:0,photos:["1610099610040-ab19f3a5ec35","1626072557464-90403d788e8d","1611859265909-af99ce570287","1612368812851-5f7baf8c0d1d"]},
+ {id:"bmw5",name:"BMW 5 Series",cat:["lux"],catKey:"cl_sedan",seats:4,bags:3,gear:"auto",fuel:"petrol",year:2022,d:3300000,s:2600000,dep:10000000,photos:["1546614042-7df3c24c9e5d","1533239538464-b23ee39003da","1724232942196-064a343b98b7","1614530499660-fe1fbd7921d6"]},
+ {id:"fortuner",name:"Toyota Fortuner",cat:["suv"],catKey:"cl_suv",seats:7,bags:4,gear:"auto",fuel:"diesel",year:2023,d:1500000,s:1000000,dep:3000000,photos:["1610064094665-57e727e29f8b","1654688554491-69d21d38fb91","1611073819030-ac7216dd0022"]},
+ {id:"innova",name:"Toyota Innova Zenix",cat:["mpv"],catKey:"cl_mpv",seats:7,bags:4,gear:"auto",fuel:"hybrid",year:2024,d:1300000,s:850000,dep:2500000,photos:["1623371857133-6d5552bbdc13","1768853143263-72d7e744bbc2","1643142314404-32a911f3ede2"]}
+];
+const HERO=["rr","gclass","lc","alphard"];
+const LOCS=[["airport",0],["kuta",0],["canggu",0],["nusadua",100000],["sanur",100000],["ubud",200000]];
+const PKGS=[{k:"pa",price:350000,unit:"u_trip",img:"1675311401495-6fb9a4564573"},{k:"pb",price:850000,unit:"u_6h",img:"1555400038-63f5ba517a47"},{k:"pc",price:1300000,unit:"u_10h",img:"1711609110590-5ad5c4599e56"},{k:"pd",price:4500000,unit:"u_day",img:"1610099610040-ab19f3a5ec35"}];
+const TERMS={driver:["td1","td2","td3","td4"],self:["ts1","ts2","ts3","ts4","ts5","ts6"]};
+
+const I18N={
+en:{nav_home:"Home",nav_fleet:"Fleet",nav_ways:"How to rent",nav_pkg:"Packages",nav_terms:"Terms",cta_wa:"Chat on WhatsApp",fab:"Book on WhatsApp",
+hero_badge:"Insured cars · Bali-wide delivery",hero_title:'Your journey, our drive. <span class="accent">Rent the best</span> in Bali.',hero_sub:"Luxury sedans, SUVs and family MPVs, with a professional driver or as self-drive. Pick a car and send your booking on WhatsApp in one tap.",
+hero_cta1:"Browse the fleet",hero_cta2:"See packages",st1:"premium cars",st2:"ways to rent",st3:"WhatsApp support",featured:"FEATURED CAR",
+with_driver_day:"per day, with driver",pk1:"Free cancellation 48h",pk2:"Insurance included",pk3:"GPS-tracked cars",pk4:"Airport delivery",
+f_from:"Pick-up date",f_to:"Return date",f_loc:"Pick-up location",f_mode:"How do you want to drive?",f_pax:"Passengers",f_extras:"Extras",f_name:"Your name",
+m_driver:"With driver",m_self:"Self-drive",s_go:"Find a car",
+fl_eye:"Our fleet",fl_title:'Choose your <span class="accent">ride</span>',fl_sub:"Every car is under five years old, cleaned after every trip and checked before handover.",
+c_all:"All cars",c_lux:"Luxury",c_suv:"SUV",c_mpv:"MPV & family",cl_lsuv:"Luxury SUV",cl_suv:"SUV 4x4",cl_lmpv:"Luxury MPV",cl_sedan:"Executive sedan",cl_mpv:"Family MPV",
+seats:"{n} seats",bags:"{n} bags",auto:"Automatic",petrol:"Petrol",diesel:"Diesel",hybrid:"Hybrid",driver_only:"Driver only",from:"from",per_day:"/ day",no_self:"Self-drive not available",
+empty:"No cars match this filter. Try “With driver”.",
+d_rr:"Commanding and quiet, the Range Rover turns long drives to Uluwatu or Kintamani into the best part of the day.",
+d_gclass:"The icon. Ideal for photo shoots, weddings and arriving in style at Bali's beach clubs.",
+d_lc:"Built for every road in Bali, from mountain passes to coastal tracks. Seven seats and plenty of luggage room.",
+d_alphard:"Captain seats, privacy curtains and a smooth ride. The first choice for airport pickups and VIP guests.",
+d_eclass:"A refined executive sedan for business meetings, dinners and transfers between hotels.",
+d_bmw5:"Sharp to drive and comfortable over long distances. Available with a driver or as self-drive.",
+d_fortuner:"A tough, comfortable SUV for families who want to explore beyond the south of Bali.",
+d_innova:"Spacious, quiet and economical. The hybrid Innova Zenix is the family favourite for day trips.",
+sp_year:"Year",sp_seats:"Seats",sp_gear:"Gearbox",sp_fuel:"Fuel",
+x_seat:"Child seat (+Rp 100k/day)",x_prot:"Zero own-risk cover (+Rp 250k/day)",
+sv_t:"Self-drive requirements",nat_w:"Indonesian (KTP + SIM A)",nat_a:"Foreign (passport + IDP)",agree:"I agree to the self-drive terms and the refundable deposit.",see:"See terms",
+book_wa:"Book via WhatsApp",m_fine:"Estimate in IDR. Final price and availability are confirmed on WhatsApp.",
+s_days:"{rate} × {n} days",s_deliv:"Delivery to {loc}",s_seat:"Child seat",s_prot:"Zero own-risk cover",s_total:"Estimated total",s_dep:"Refundable deposit {dep}, paid separately",free:"Free",
+e_dates:"Please choose a return date after the pick-up date.",e_past:"The pick-up date can't be in the past.",e_pax:"This car seats up to {n} passengers.",e_name:"Please add your name.",e_agree:"Please agree to the self-drive terms.",
+w_eye:"Two ways to rent",w_title:'Sit back, <span class="accent">or take the wheel</span>',
+wd_t:"With a driver",wd_p:"The easiest way to see Bali. Our drivers know the roads, the shortcuts and where to park at every temple.",wd_1:"10 hours per day, overtime 10% of the daily rate per hour",wd_2:"Fuel, parking and tolls included within the service zone",wd_3:"English-speaking driver, licensed and insured",wd_4:"No deposit and no licence needed",see_cars:"See cars with driver",
+ws_t:"Self-drive",ws_p:"Drive yourself on your own schedule. Available for selected cars, with ID check and a refundable deposit.",ws_1:"24-hour rental, delivered and collected at your hotel",ws_2:"Indonesian: KTP + SIM A. Foreign: passport + International Driving Permit",ws_3:"Refundable deposit from Rp 2.5 million, returned within 24 hours",ws_4:"Insurance included, with own-risk per incident",see_self:"See self-drive cars",read_terms:"Read the terms",
+p_eye:"Packages",p_title:'Ready-made trips, <span class="accent">one message away</span>',p_sub:"All packages include a driver. Prices for an Innova Zenix; ask for other cars on WhatsApp.",
+pa_t:"Airport transfer",pa_p:"Meet and greet at arrivals with a name board, water and cold towels.",pb_t:"Half day, 6 hours",pb_p:"Ubud rice terraces, a beach club afternoon or a shopping run in Seminyak.",pc_t:"Full day, 10 hours",pc_p:"Temples, waterfalls and sunset, planned with your driver the night before.",pd_t:"Wedding car",pd_p:"Mercedes-Benz E-Class with flowers and ribbon, driver in formal dress.",
+u_trip:"/ trip",u_6h:"/ 6 hours",u_10h:"/ 10 hours",u_day:"/ day",pkg_btn:"Ask on WhatsApp",
+h_eye:"How it works",h_title:'From message <span class="accent">to keys in hand</span>',h1t:"Pick a car",h1p:"Choose the car, dates and pick-up point. The price estimate updates as you go.",h2t:"Send on WhatsApp",h2p:"One tap sends your booking details. We reply within 15 minutes, 7am to 10pm.",h3t:"Confirm & verify",h3p:"Pay a 30% down payment. For self-drive, send your ID photos and the deposit.",h4t:"Car delivered",h4p:"We deliver to your hotel or the airport, check the car with you on video, and you drive off.",
+t_eye:"Rental terms",t_title:'Clear rules, <span class="accent">no surprises</span>',t_note:"Example terms for this demo. The rental owner sets the final rules and amounts.",
+td1:"Hours and overtime",td1a:"One rental day is 10 hours, starting at pick-up time.|Overtime is 10% of the daily rate per hour.|Night trips after 22:00 are arranged in advance.",
+td2:"What's included",td2a:"Car, driver, fuel, parking and tolls within the service zone (South Bali and Ubud).|Trips to Kintamani, Bedugul or East Bali add Rp 250,000 per day.|Driver meals are on us; you are welcome to invite them.",
+td3:"Payment",td3a:"30% down payment by bank transfer to confirm the booking.|Balance paid to the driver on the first day, in cash or by transfer.",
+td4:"Cancellation",td4a:"Free cancellation up to 48 hours before pick-up.|Within 48 hours, the down payment is kept as a fee.|Flight delays are free to reschedule.",
+ts1:"Who can rent",ts1a:"Minimum age 23, with a driving licence held for at least 2 years.|Indonesian citizens: original KTP and an active SIM A. The original KTP stays with us during the rental.|Foreign guests: passport, International Driving Permit and home licence. We photograph the passport; we do not keep the original, because you need it for hotels and immigration.|Only the named renter may drive. Extra drivers must be registered.",
+ts2:"Deposit",ts2a:"Every self-drive rental needs a refundable security deposit (Rp 2.5–15 million depending on the car).|Paid by bank transfer or card before handover.|Returned within 24 hours after the car is checked, minus any costs below.",
+ts3:"Scratches and dents",ts3a:"We record the car on video with you at handover and at return.|New scratches or dents are charged at the workshop quote, up to the own-risk limit, and taken from the deposit.|The zero own-risk cover (Rp 250k/day) removes this charge for accidental damage.",
+ts4:"Accidents",ts4a:"Every car has comprehensive insurance.|Call us and the police straight away; a police report is needed for the insurance claim.|Own-risk is Rp 2,500,000 per incident.|Insurance does not cover drunk driving, an unregistered driver, off-road use or racing; the renter pays all costs in these cases.",
+ts5:"Theft and misuse",ts5a:"All cars have a GPS tracker.|The car must stay on Bali; ferries to Lombok or Java need written permission.|Sub-renting or using the car for paid rides is not allowed.|A car not returned within 6 hours of the agreed time with no contact is reported to the police, and the deposit is kept.",
+ts6:"Fuel and late return",ts6a:"Return the car with the same fuel level, or we charge the refuel cost plus Rp 50,000.|Late return is 10% of the daily rate per hour; over 4 hours counts as an extra day.|Smoking in the car carries a Rp 500,000 cleaning fee.",
+a_eye:"Delivery areas",a_title:'We bring the car <span class="accent">to you</span>',a_note:"With-driver trips outside the service zone (Kintamani, Bedugul, East Bali) add Rp 250,000 per day.",
+l_airport:"Ngurah Rai Airport (DPS)",l_kuta:"Kuta, Legian, Seminyak",l_canggu:"Canggu, Berawa",l_nusadua:"Nusa Dua, Jimbaran, Uluwatu",l_sanur:"Sanur",l_ubud:"Ubud",
+b_eye:"Ready when you are",b_title:"Your car is one message away",b_sub:"Tell us your dates and where you are staying. We handle the rest.",
+ft_p:"Premium car rental in Bali, with driver or self-drive. Booked on WhatsApp, delivered to your door.",ft_menu:"Menu",ft_hours:"Hours",ft_h1:"Office 07:00 – 22:00",ft_h2:"Roadside help 24/7",ft_contact:"Contact",ft_demo:"Demo website. Photos from Unsplash stand in for the real fleet; numbers and address are placeholders.",
+photo_n:"{i} / {n}",
+wa_general:"Hello Saka Drive, I'd like to ask about renting a car in Bali.",
+wa_pkg:"Hello Saka Drive, I'm interested in the {pkg} package. My dates are: ",
+wa_book:"Hello Saka Drive, I'd like to book:\n• Car: {car}\n• Mode: {mode}\n• Dates: {from} – {to} ({n} days)\n• Pick-up: {loc}\n• Passengers: {pax}\n• Extras: {extras}\n• Estimated total: {total}{dep}\n{idl}Name: {name}",
+wa_none:"none",wa_dep:" (+ refundable deposit {dep})",wa_idw:"I will bring my KTP and SIM A.\n",wa_ida:"I will bring my passport, International Driving Permit and home licence.\n"},
+id:{nav_home:"Beranda",nav_fleet:"Armada",nav_ways:"Cara sewa",nav_pkg:"Paket",nav_terms:"Syarat",cta_wa:"Chat WhatsApp",fab:"Pesan via WhatsApp",
+hero_badge:"Mobil berasuransi · Antar ke seluruh Bali",hero_title:'Perjalanan Anda, kami yang antar. <span class="accent">Sewa yang terbaik</span> di Bali.',hero_sub:"Sedan mewah, SUV, dan MPV keluarga, dengan sopir profesional atau lepas kunci. Pilih mobil dan kirim pesanan lewat WhatsApp dalam satu klik.",
+hero_cta1:"Lihat armada",hero_cta2:"Lihat paket",st1:"mobil premium",st2:"cara sewa",st3:"layanan WhatsApp",featured:"MOBIL PILIHAN",
+with_driver_day:"per hari, dengan sopir",pk1:"Batal gratis 48 jam",pk2:"Termasuk asuransi",pk3:"Mobil ber-GPS",pk4:"Antar ke bandara",
+f_from:"Tanggal ambil",f_to:"Tanggal kembali",f_loc:"Lokasi jemput",f_mode:"Mau menyetir sendiri?",f_pax:"Penumpang",f_extras:"Tambahan",f_name:"Nama Anda",
+m_driver:"Dengan sopir",m_self:"Lepas kunci",s_go:"Cari mobil",
+fl_eye:"Armada kami",fl_title:'Pilih <span class="accent">mobil Anda</span>',fl_sub:"Semua mobil berusia di bawah lima tahun, dibersihkan setiap selesai dipakai, dan dicek sebelum diserahkan.",
+c_all:"Semua",c_lux:"Mewah",c_suv:"SUV",c_mpv:"MPV & keluarga",cl_lsuv:"SUV mewah",cl_suv:"SUV 4x4",cl_lmpv:"MPV mewah",cl_sedan:"Sedan eksekutif",cl_mpv:"MPV keluarga",
+seats:"{n} kursi",bags:"{n} koper",auto:"Otomatis",petrol:"Bensin",diesel:"Diesel",hybrid:"Hybrid",driver_only:"Hanya dengan sopir",from:"mulai",per_day:"/ hari",no_self:"Tidak tersedia lepas kunci",
+empty:"Tidak ada mobil untuk filter ini. Coba pilih “Dengan sopir”.",
+d_rr:"Gagah dan senyap, Range Rover membuat perjalanan jauh ke Uluwatu atau Kintamani jadi bagian terbaik hari Anda.",
+d_gclass:"Sang ikon. Cocok untuk foto prewedding, pernikahan, dan datang dengan gaya ke beach club Bali.",
+d_lc:"Siap untuk semua jalan di Bali, dari jalur pegunungan sampai pesisir. Tujuh kursi dan bagasi luas.",
+d_alphard:"Captain seat, tirai privasi, dan suspensi yang halus. Pilihan utama untuk jemput bandara dan tamu VIP.",
+d_eclass:"Sedan eksekutif yang elegan untuk rapat bisnis, makan malam, dan antar-jemput antar hotel.",
+d_bmw5:"Lincah dikendarai dan nyaman untuk jarak jauh. Tersedia dengan sopir atau lepas kunci.",
+d_fortuner:"SUV tangguh dan nyaman untuk keluarga yang ingin menjelajah di luar Bali selatan.",
+d_innova:"Lega, senyap, dan irit. Innova Zenix hybrid jadi favorit keluarga untuk perjalanan seharian.",
+sp_year:"Tahun",sp_seats:"Kursi",sp_gear:"Transmisi",sp_fuel:"BBM",
+x_seat:"Kursi anak (+Rp 100rb/hari)",x_prot:"Perlindungan tanpa own-risk (+Rp 250rb/hari)",
+sv_t:"Syarat lepas kunci",nat_w:"WNI (KTP + SIM A)",nat_a:"WNA (paspor + IDP)",agree:"Saya setuju dengan syarat lepas kunci dan deposit yang dapat dikembalikan.",see:"Lihat syarat",
+book_wa:"Pesan via WhatsApp",m_fine:"Estimasi dalam Rupiah. Harga akhir dan ketersediaan dikonfirmasi lewat WhatsApp.",
+s_days:"{rate} × {n} hari",s_deliv:"Antar ke {loc}",s_seat:"Kursi anak",s_prot:"Perlindungan tanpa own-risk",s_total:"Estimasi total",s_dep:"Deposit {dep} dibayar terpisah, dikembalikan",free:"Gratis",
+e_dates:"Pilih tanggal kembali setelah tanggal ambil.",e_past:"Tanggal ambil sudah lewat.",e_pax:"Mobil ini maksimal {n} penumpang.",e_name:"Mohon isi nama Anda.",e_agree:"Mohon setujui syarat lepas kunci.",
+w_eye:"Dua cara sewa",w_title:'Duduk santai, <span class="accent">atau pegang kemudi</span>',
+wd_t:"Dengan sopir",wd_p:"Cara paling mudah menjelajah Bali. Sopir kami hafal jalan, jalan pintas, dan tempat parkir di setiap pura.",wd_1:"10 jam per hari, lembur 10% dari tarif harian per jam",wd_2:"BBM, parkir, dan tol sudah termasuk di dalam zona layanan",wd_3:"Sopir bisa berbahasa Inggris, berlisensi, dan diasuransikan",wd_4:"Tanpa deposit dan tanpa SIM",see_cars:"Lihat mobil dengan sopir",
+ws_t:"Lepas kunci",ws_p:"Setir sendiri sesuai jadwal Anda. Tersedia untuk mobil tertentu, dengan verifikasi identitas dan deposit yang dapat dikembalikan.",ws_1:"Sewa 24 jam, diantar dan dijemput di hotel Anda",ws_2:"WNI: KTP + SIM A. WNA: paspor + SIM internasional (IDP)",ws_3:"Deposit mulai Rp 2,5 juta, dikembalikan dalam 24 jam",ws_4:"Termasuk asuransi, dengan own-risk per kejadian",see_self:"Lihat mobil lepas kunci",read_terms:"Baca syaratnya",
+p_eye:"Paket",p_title:'Paket siap jalan, <span class="accent">cukup satu pesan</span>',p_sub:"Semua paket sudah termasuk sopir. Harga untuk Innova Zenix; tanyakan mobil lain lewat WhatsApp.",
+pa_t:"Antar-jemput bandara",pa_p:"Disambut di kedatangan dengan papan nama, air mineral, dan handuk dingin.",pb_t:"Setengah hari, 6 jam",pb_p:"Sawah Ubud, sore di beach club, atau belanja di Seminyak.",pc_t:"Seharian, 10 jam",pc_p:"Pura, air terjun, dan sunset, direncanakan bersama sopir malam sebelumnya.",pd_t:"Mobil pengantin",pd_p:"Mercedes-Benz E-Class dengan hiasan bunga dan pita, sopir berpakaian formal.",
+u_trip:"/ perjalanan",u_6h:"/ 6 jam",u_10h:"/ 10 jam",u_day:"/ hari",pkg_btn:"Tanya via WhatsApp",
+h_eye:"Cara kerja",h_title:'Dari pesan <span class="accent">sampai kunci di tangan</span>',h1t:"Pilih mobil",h1p:"Pilih mobil, tanggal, dan lokasi jemput. Estimasi harga langsung terlihat.",h2t:"Kirim via WhatsApp",h2p:"Satu klik mengirim detail pesanan. Kami balas dalam 15 menit, pukul 07.00–22.00.",h3t:"Konfirmasi & verifikasi",h3p:"Bayar DP 30%. Untuk lepas kunci, kirim foto identitas dan deposit.",h4t:"Mobil diantar",h4p:"Kami antar ke hotel atau bandara, cek mobil bersama lewat video, dan Anda siap jalan.",
+t_eye:"Syarat sewa",t_title:'Aturan jelas, <span class="accent">tanpa kejutan</span>',t_note:"Contoh syarat untuk demo ini. Pemilik rental yang menentukan aturan dan nominal akhirnya.",
+td1:"Jam sewa dan lembur",td1a:"Satu hari sewa adalah 10 jam, dihitung dari jam jemput.|Lembur 10% dari tarif harian per jam.|Perjalanan setelah pukul 22.00 diatur sebelumnya.",
+td2:"Yang sudah termasuk",td2a:"Mobil, sopir, BBM, parkir, dan tol di dalam zona layanan (Bali selatan dan Ubud).|Perjalanan ke Kintamani, Bedugul, atau Bali timur ditambah Rp 250.000 per hari.|Makan sopir kami tanggung; Anda boleh mengajaknya makan bersama.",
+td3:"Pembayaran",td3a:"DP 30% lewat transfer bank untuk konfirmasi pesanan.|Pelunasan dibayar ke sopir di hari pertama, tunai atau transfer.",
+td4:"Pembatalan",td4a:"Batal gratis sampai 48 jam sebelum jemput.|Kurang dari 48 jam, DP menjadi biaya pembatalan.|Penerbangan tertunda bisa dijadwalkan ulang gratis.",
+ts1:"Siapa yang bisa menyewa",ts1a:"Usia minimal 23 tahun, dengan SIM minimal 2 tahun.|WNI: KTP asli dan SIM A aktif. KTP asli kami simpan selama masa sewa.|WNA: paspor, SIM internasional (IDP), dan SIM negara asal. Paspor hanya kami foto, tidak kami tahan, karena dibutuhkan untuk hotel dan imigrasi.|Hanya penyewa yang terdaftar yang boleh menyetir. Pengemudi tambahan wajib didaftarkan.",
+ts2:"Deposit",ts2a:"Setiap sewa lepas kunci memerlukan deposit jaminan (Rp 2,5–15 juta tergantung mobil).|Dibayar lewat transfer atau kartu sebelum serah terima.|Dikembalikan dalam 24 jam setelah mobil dicek, dikurangi biaya di bawah bila ada.",
+ts3:"Lecet dan penyok",ts3a:"Kondisi mobil direkam video bersama Anda saat serah terima dan pengembalian.|Lecet atau penyok baru dikenakan biaya sesuai penawaran bengkel, maksimal sebesar own-risk, dan dipotong dari deposit.|Perlindungan tanpa own-risk (Rp 250rb/hari) menghapus biaya ini untuk kerusakan tidak disengaja.",
+ts4:"Kecelakaan",ts4a:"Semua mobil diasuransikan all-risk.|Segera hubungi kami dan polisi; laporan polisi diperlukan untuk klaim asuransi.|Own-risk Rp 2.500.000 per kejadian.|Asuransi tidak berlaku jika mengemudi dalam pengaruh alkohol, pengemudi tidak terdaftar, dipakai off-road, atau balapan; seluruh biaya ditanggung penyewa.",
+ts5:"Pencurian dan penyalahgunaan",ts5a:"Semua mobil dilengkapi GPS tracker.|Mobil harus tetap di Bali; menyeberang ke Lombok atau Jawa perlu izin tertulis.|Dilarang menyewakan ulang atau memakai mobil untuk taksi online.|Mobil yang tidak kembali 6 jam setelah waktu yang disepakati tanpa kabar akan dilaporkan ke polisi, dan deposit hangus.",
+ts6:"BBM dan keterlambatan",ts6a:"Kembalikan mobil dengan level BBM yang sama, atau dikenakan biaya isi ulang plus Rp 50.000.|Terlambat dikenakan 10% tarif harian per jam; lebih dari 4 jam dihitung satu hari.|Merokok di dalam mobil dikenakan biaya pembersihan Rp 500.000.",
+a_eye:"Area antar",a_title:'Mobil kami antar <span class="accent">ke tempat Anda</span>',a_note:"Perjalanan dengan sopir di luar zona layanan (Kintamani, Bedugul, Bali timur) ditambah Rp 250.000 per hari.",
+l_airport:"Bandara Ngurah Rai (DPS)",l_kuta:"Kuta, Legian, Seminyak",l_canggu:"Canggu, Berawa",l_nusadua:"Nusa Dua, Jimbaran, Uluwatu",l_sanur:"Sanur",l_ubud:"Ubud",
+b_eye:"Siap kapan saja",b_title:"Mobil Anda hanya satu pesan lagi",b_sub:"Beri tahu tanggal dan tempat menginap Anda. Sisanya kami urus.",
+ft_p:"Rental mobil premium di Bali, dengan sopir atau lepas kunci. Pesan lewat WhatsApp, diantar sampai depan pintu.",ft_menu:"Menu",ft_hours:"Jam layanan",ft_h1:"Kantor 07.00 – 22.00",ft_h2:"Bantuan darurat 24/7",ft_contact:"Kontak",ft_demo:"Website demo. Foto dari Unsplash menggantikan armada asli; nomor dan alamat hanya contoh.",
+photo_n:"{i} / {n}",
+wa_general:"Halo Saka Drive, saya mau tanya sewa mobil di Bali.",
+wa_pkg:"Halo Saka Drive, saya tertarik dengan paket {pkg}. Tanggal saya: ",
+wa_book:"Halo Saka Drive, saya mau pesan:\n• Mobil: {car}\n• Jenis sewa: {mode}\n• Tanggal: {from} – {to} ({n} hari)\n• Lokasi jemput: {loc}\n• Penumpang: {pax}\n• Tambahan: {extras}\n• Estimasi total: {total}{dep}\n{idl}Nama: {name}",
+wa_none:"tidak ada",wa_dep:" (+ deposit {dep}, dikembalikan)",wa_idw:"Saya akan membawa KTP dan SIM A.\n",wa_ida:"Saya akan membawa paspor, SIM internasional (IDP), dan SIM negara asal.\n"},
+zh:{nav_home:"首页",nav_fleet:"车型",nav_ways:"租车方式",nav_pkg:"套餐",nav_terms:"租车条款",cta_wa:"WhatsApp咨询",fab:"WhatsApp预订",
+hero_badge:"全车投保 · 巴厘岛全岛送车",hero_title:'您的旅程，由我们驾驶。<span class="accent">在巴厘岛租最好的车</span>。',hero_sub:"豪华轿车、SUV和家庭MPV，可配专业司机，也可自驾。选好车，一键通过WhatsApp发送预订。",
+hero_cta1:"浏览车型",hero_cta2:"查看套餐",st1:"辆高端车",st2:"种租车方式",st3:"WhatsApp服务",featured:"精选车型",
+with_driver_day:"每天，含司机",pk1:"48小时免费取消",pk2:"含保险",pk3:"全车GPS定位",pk4:"机场送车",
+f_from:"取车日期",f_to:"还车日期",f_loc:"取车地点",f_mode:"您想怎么出行？",f_pax:"乘客人数",f_extras:"附加服务",f_name:"您的姓名",
+m_driver:"含司机",m_self:"自驾",s_go:"查找车辆",
+fl_eye:"我们的车队",fl_title:'选择<span class="accent">您的座驾</span>',fl_sub:"所有车辆车龄不超过五年，每次使用后清洁，交车前检查。",
+c_all:"全部",c_lux:"豪华",c_suv:"SUV",c_mpv:"MPV与家庭",cl_lsuv:"豪华SUV",cl_suv:"四驱SUV",cl_lmpv:"豪华MPV",cl_sedan:"行政轿车",cl_mpv:"家庭MPV",
+seats:"{n}座",bags:"{n}件行李",auto:"自动挡",petrol:"汽油",diesel:"柴油",hybrid:"混动",driver_only:"仅含司机",from:"起",per_day:"/ 天",no_self:"此车不提供自驾",
+empty:"没有符合条件的车辆，请尝试“含司机”。",
+d_rr:"气势稳重又安静，让前往乌鲁瓦图或金塔马尼的长途车程成为一天中最享受的部分。",
+d_gclass:"经典之作。适合婚纱拍摄、婚礼，以及风光抵达巴厘岛海滩俱乐部。",
+d_lc:"适应巴厘岛各种路况，从山路到海岸小道。七座，行李空间充足。",
+d_alphard:"独立航空座椅、隐私窗帘、行驶平稳。机场接送和贵宾出行的首选。",
+d_eclass:"优雅的行政轿车，适合商务会议、晚宴和酒店间接送。",
+d_bmw5:"驾驶灵活，长途舒适。可选含司机或自驾。",
+d_fortuner:"坚固舒适的SUV，适合想探索巴厘岛南部以外地区的家庭。",
+d_innova:"宽敞、安静、省油。混动版Innova Zenix是家庭一日游的最爱。",
+sp_year:"年份",sp_seats:"座位",sp_gear:"变速箱",sp_fuel:"燃料",
+x_seat:"儿童座椅（每天+Rp 10万）",x_prot:"免自付额保障（每天+Rp 25万）",
+sv_t:"自驾要求",nat_w:"印尼公民（KTP + SIM A）",nat_a:"外国游客（护照 + 国际驾照）",agree:"我同意自驾条款及可退还押金。",see:"查看条款",
+book_wa:"通过WhatsApp预订",m_fine:"以印尼盾估算。最终价格和车辆供应将在WhatsApp上确认。",
+s_days:"{rate} × {n}天",s_deliv:"送车至{loc}",s_seat:"儿童座椅",s_prot:"免自付额保障",s_total:"预估总价",s_dep:"另付可退押金{dep}",free:"免费",
+e_dates:"还车日期必须晚于取车日期。",e_past:"取车日期不能早于今天。",e_pax:"此车最多可乘坐{n}人。",e_name:"请填写您的姓名。",e_agree:"请同意自驾条款。",
+w_eye:"两种租车方式",w_title:'安心乘坐，<span class="accent">或亲自驾驶</span>',
+wd_t:"含司机",wd_p:"游览巴厘岛最轻松的方式。司机熟悉道路、捷径和每座寺庙的停车位置。",wd_1:"每天10小时，超时每小时按日租金10%计费",wd_2:"服务区内含油费、停车费和过路费",wd_3:"司机会说英语，持证并投保",wd_4:"无需押金，无需驾照",see_cars:"查看含司机车型",
+ws_t:"自驾",ws_p:"按自己的行程驾驶。部分车型可选，需身份核验并支付可退押金。",ws_1:"按24小时计租，送车和取车到您的酒店",ws_2:"印尼公民：KTP + SIM A。外国游客：护照 + 国际驾照",ws_3:"押金Rp 250万起，24小时内退还",ws_4:"含保险，每次事故有自付额",see_self:"查看自驾车型",read_terms:"阅读条款",
+p_eye:"套餐",p_title:'现成行程，<span class="accent">一条消息即可</span>',p_sub:"所有套餐均含司机。价格以Innova Zenix计算，其他车型请通过WhatsApp咨询。",
+pa_t:"机场接送",pa_p:"到达大厅举牌接机，备有饮用水和冰毛巾。",pb_t:"半日游，6小时",pb_p:"乌布梯田、海滩俱乐部的午后或水明漾购物。",pc_t:"一日游，10小时",pc_p:"寺庙、瀑布和日落，前一晚与司机一起规划。",pd_t:"婚车",pd_p:"奔驰E级配鲜花和彩带，司机着正装。",
+u_trip:"/ 趟",u_6h:"/ 6小时",u_10h:"/ 10小时",u_day:"/ 天",pkg_btn:"WhatsApp咨询",
+h_eye:"预订流程",h_title:'从发送消息<span class="accent">到拿到钥匙</span>',h1t:"选择车辆",h1p:"选择车型、日期和取车地点，价格估算即时更新。",h2t:"WhatsApp发送",h2p:"一键发送预订信息。我们在07:00–22:00期间15分钟内回复。",h3t:"确认与核验",h3p:"支付30%定金。自驾需发送证件照片并支付押金。",h4t:"送车上门",h4p:"我们把车送到酒店或机场，与您一起录像验车，即可出发。",
+t_eye:"租车条款",t_title:'规则清晰，<span class="accent">没有意外</span>',t_note:"本演示中的条款仅为示例，最终规则和金额由车行决定。",
+td1:"用车时长与超时",td1a:"一天按10小时计算，从接车时间开始。|超时每小时按日租金的10%计费。|22:00以后的行程需提前安排。",
+td2:"费用包含",td2a:"车辆、司机、油费、停车费及服务区（巴厘岛南部和乌布）内的过路费。|前往金塔马尼、贝都古或巴厘岛东部每天加收Rp 250,000。|司机餐费由我们承担，您也可以邀请司机一起用餐。",
+td3:"付款",td3a:"银行转账支付30%定金以确认预订。|余款于第一天支付给司机，现金或转账均可。",
+td4:"取消政策",td4a:"接车前48小时免费取消。|48小时内取消，定金不予退还。|航班延误可免费改期。",
+ts1:"租车资格",ts1a:"年满23岁，驾龄至少2年。|印尼公民：KTP原件和有效SIM A，租期内KTP原件由我们保管。|外国游客：护照、国际驾照和本国驾照。护照仅拍照留存，不扣押原件，因为您入住酒店和出入境需要使用。|仅登记的租车人可以驾驶，额外驾驶人须登记。",
+ts2:"押金",ts2a:"每次自驾都需支付可退还的保证金（根据车型Rp 250万至1500万）。|交车前通过银行转账或刷卡支付。|验车后24小时内退还，如有下列费用将从中扣除。",
+ts3:"划痕与凹陷",ts3a:"交车和还车时与您一起录像记录车况。|新增划痕或凹陷按修车厂报价收费，以自付额为上限，从押金中扣除。|免自付额保障（每天Rp 25万）可免除意外损坏的此项费用。",
+ts4:"交通事故",ts4a:"所有车辆均投保全险。|请立即联系我们和警方，保险理赔需要警方报告。|每次事故自付额为Rp 2,500,000。|酒驾、未登记驾驶人、越野使用或飙车不在保险范围内，所有费用由租车人承担。",
+ts5:"盗窃与违规使用",ts5a:"所有车辆均安装GPS定位。|车辆须留在巴厘岛，乘渡轮前往龙目岛或爪哇需书面许可。|禁止转租或用于营运载客。|超过约定还车时间6小时且无法联系的，将向警方报案，押金不予退还。",
+ts6:"油量与延迟还车",ts6a:"还车时请保持相同油量，否则收取加油费外加Rp 50,000。|延迟还车每小时按日租金10%计费，超过4小时按一天计。|车内吸烟收取Rp 500,000清洁费。",
+a_eye:"送车范围",a_title:'我们把车<span class="accent">送到您身边</span>',a_note:"含司机行程超出服务区（金塔马尼、贝都古、巴厘岛东部）每天加收Rp 250,000。",
+l_airport:"伍拉·赖国际机场 (DPS)",l_kuta:"库塔、雷吉安、水明漾",l_canggu:"仓古、贝拉瓦",l_nusadua:"努沙杜瓦、金巴兰、乌鲁瓦图",l_sanur:"沙努尔",l_ubud:"乌布",
+b_eye:"随时为您准备",b_title:"只需一条消息，车就为您准备好",b_sub:"告诉我们您的日期和住宿地点，其余交给我们。",
+ft_p:"巴厘岛高端租车，含司机或自驾。WhatsApp预订，送车上门。",ft_menu:"菜单",ft_hours:"服务时间",ft_h1:"办公室 07:00 – 22:00",ft_h2:"道路救援 24/7",ft_contact:"联系方式",ft_demo:"演示网站。照片来自Unsplash，仅代替实际车辆；号码和地址仅为示例。",
+photo_n:"{i} / {n}",
+wa_general:"您好 Saka Drive，我想咨询巴厘岛租车。",
+wa_pkg:"您好 Saka Drive，我对{pkg}套餐感兴趣。我的日期是：",
+wa_book:"您好 Saka Drive，我想预订：\n• 车型：{car}\n• 方式：{mode}\n• 日期：{from} – {to}（{n}天）\n• 取车地点：{loc}\n• 乘客：{pax}\n• 附加：{extras}\n• 预估总价：{total}{dep}\n{idl}姓名：{name}",
+wa_none:"无",wa_dep:"（另付可退押金{dep}）",wa_idw:"我会携带KTP和SIM A。\n",wa_ida:"我会携带护照、国际驾照和本国驾照。\n"}
+};
+let lang="en";try{lang=localStorage.getItem("saka-lang")||"en"}catch(e){}
+if(!I18N[lang])lang="en";
+const t=(k,v)=>{let s=(I18N[lang][k]!=null)?I18N[lang][k]:(I18N.en[k]!=null?I18N.en[k]:k);if(v)for(const x in v)s=s.split("{"+x+"}").join(v[x]);return s};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const $=id=>document.getElementById(id);
+const reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+const GLIDE="cubic-bezier(.22,1,.36,1)";
+const money=n=>"Rp "+Math.round(n).toLocaleString("id-ID");
+const short=n=>n>=1e6?("Rp "+(n/1e6).toLocaleString(lang==="en"?"en-US":"id-ID",{maximumFractionDigits:1})+(lang==="zh"?"百万":lang==="id"?" jt":"M")):money(n);
+const carById=id=>CARS.find(c=>c.id===id);
+function guard(root){(root||document).querySelectorAll(".ph img").forEach(img=>{if(img._g)return;img._g=1;img.addEventListener("error",()=>img.classList.add("broken"))})}
+const waHref=msg=>"https://wa.me/"+WA+"?text="+encodeURIComponent(msg);
+const anim=(el,kf,o)=>{if(!reduce&&el&&el.animate)return el.animate(kf,Object.assign({easing:GLIDE},o))};
+
+/* dates */
+const DAY=86400000,T=(()=>{const d=new Date();return Math.round(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/DAY)})();
+const toN=s=>{if(!s)return null;const p=s.split("-").map(Number);if(p.length!==3||p.some(isNaN))return null;return Math.round(Date.UTC(p[0],p[1]-1,p[2])/DAY)};
+const toS=n=>new Date(n*DAY).toISOString().slice(0,10);
+const fmtD=n=>new Intl.DateTimeFormat({en:"en-GB",id:"id-ID",zh:"zh-CN"}[lang],{day:"numeric",month:"short",year:"numeric",timeZone:"UTC"}).format(new Date(n*DAY));
+
+/* smooth scroll: Lenis inertia, eased jumps */
+let lenis=null;
+if(window.Lenis&&!reduce){try{lenis=new Lenis({duration:1.25,easing:x=>Math.min(1,1.001-Math.pow(2,-10*x)),smoothWheel:true,wheelMultiplier:.95,touchMultiplier:1.4});const raf=time=>{lenis.raf(time);requestAnimationFrame(raf)};requestAnimationFrame(raf)}catch(e){lenis=null}}
+const easeIO=p=>p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2;
+let sRaf=0;
+function smoothTo(y){if(lenis){lenis.scrollTo(y,{duration:Math.min(1.8,.9+Math.abs(y-window.scrollY)/3000),easing:easeIO});return}
+ cancelAnimationFrame(sRaf);const s0=window.scrollY,d=y-s0;if(reduce||Math.abs(d)<2){window.scrollTo(0,y);return}const dur=Math.min(1500,650+Math.abs(d)*.22);let t0=null;const st=ts=>{if(t0===null)t0=ts;const p=Math.min(1,(ts-t0)/dur);window.scrollTo(0,s0+d*easeIO(p));if(p<1)sRaf=requestAnimationFrame(st)};sRaf=requestAnimationFrame(st)}
+["wheel","touchstart","keydown"].forEach(ev=>window.addEventListener(ev,()=>cancelAnimationFrame(sRaf),{passive:true}));
+function go(id){const el=$(id);if(!el)return;const y=id==="top"?0:el.getBoundingClientRect().top+window.scrollY-84;smoothTo(Math.max(0,y));$("mobileNav").hidden=true;$("menuBtn").setAttribute("aria-expanded","false")}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-go]");if(b){e.preventDefault();if(b.closest(".modal"))closeCar();go(b.dataset.go)}});
+$("menuBtn").addEventListener("click",()=>{const m=$("mobileNav");m.hidden=!m.hidden;$("menuBtn").setAttribute("aria-expanded",String(!m.hidden));if(!m.hidden)anim(m,[{opacity:0,transform:"translateY(-10px)"},{opacity:1,transform:"none"}],{duration:500})});
+
+/* sliding knob for segmented controls */
+function moveKnob(seg,instant){const k=seg.querySelector(".knob"),b=seg.querySelector('button[aria-pressed="true"]');if(!k||!b)return;if(instant)k.style.transition="none";k.style.width=b.offsetWidth+"px";k.style.transform="translateX("+b.offsetLeft+"px)";if(instant){void k.offsetWidth;k.style.transition=""}}
+function setSeg(seg,val,attr){seg.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset[attr||"m"]===val)));moveKnob(seg)}
+const knobSegs=()=>document.querySelectorAll(".seg");
+window.addEventListener("resize",()=>knobSegs().forEach(s=>moveKnob(s,true)));
+
+/* scroll-driven bits: sticky nav, parallax */
+let scRaf=0;const heroR=$("heroR"),bandEl=$("band");
+function onScroll(){const y=window.scrollY;$("snav").classList.toggle("show",y>window.innerHeight*.8);if(reduce)return;
+ if(y<1400)heroR.style.setProperty("--py",(y*.12).toFixed(1)+"px");
+ const r=bandEl.getBoundingClientRect();if(r.top<window.innerHeight&&r.bottom>0)bandEl.style.setProperty("--by",((r.top-window.innerHeight/2)*-.08).toFixed(1)+"px")}
+window.addEventListener("scroll",()=>{cancelAnimationFrame(scRaf);scRaf=requestAnimationFrame(onScroll)},{passive:true});
+
+/* reveal on scroll, children staggered */
+function stagger(parent,base){[...parent.children].filter(c=>!c.hidden).forEach((c,i)=>anim(c,[{opacity:0,transform:"translateY(40px) scale(.97)"},{opacity:1,transform:"none"}],{duration:1100,delay:(base||0)+i*95,fill:"backwards"}))}
+if("IntersectionObserver" in window&&!reduce){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){if(e.target.classList.contains("rv-s"))stagger(e.target);else e.target.classList.add("in");io.unobserve(e.target)}}),{rootMargin:"0px 0px -10% 0px"});document.querySelectorAll(".rv,.rv-s").forEach(el=>io.observe(el))}
+else document.querySelectorAll(".rv").forEach(el=>el.classList.add("in"));
+
+/* hero: horizontal wipe between cars */
+const L=[];
+HERO.forEach((id,i)=>{const c=carById(id);const l=document.createElement("div");l.className="layer"+(i===0?" on":"");l.innerHTML='<img src="'+U(c.photos[0],2000)+'" alt="'+esc(c.name)+'"'+(i===0?' fetchpriority="high"':' loading="eager"')+'>';heroR.insertBefore(l,heroR.firstChild);L.push(l)});
+$("thumbs").innerHTML=HERO.map((id,i)=>{const c=carById(id);return'<button type="button" class="thumb'+(i===0?" on":"")+'" data-h="'+i+'"><div class="ph"><img src="'+U(c.photos[0],400)+'" alt=""></div><span>'+esc(c.name)+"</span></button>"}).join("");
+$("dots").innerHTML=HERO.map((_,i)=>"<i"+(i===0?' class="on"':"")+"></i>").join("");
+let hI=0,hTimer=0,hBusy=false;
+function heroText(){const c=carById(HERO[hI]);$("f1b").textContent=t(c.gear);$("f1s").textContent=t("seats",{n:c.seats})+" · "+t(c.fuel);$("f2b").textContent=short(c.d);$("cnCat").textContent=t(c.catKey);$("cnName").textContent=c.name}
+function setHero(i,dir){if(i===hI||hBusy){restartHero();return}hBusy=true;dir=dir||(i>hI?1:-1);const old=L[hI],nw=L[i];
+ L.forEach(l=>{if(l!==old&&l!==nw)l.classList.remove("on","was")});
+ old.classList.remove("on");old.classList.add("was");
+ nw.classList.remove("was");nw.style.transition="none";nw.style.clipPath=dir>0?"inset(0 0 0 100%)":"inset(0 100% 0 0)";void nw.offsetWidth;nw.style.transition="";nw.style.clipPath="";nw.classList.add("on");
+ clearTimeout(old._t);old._t=setTimeout(()=>{old.classList.remove("was");hBusy=false},reduce?0:1400);
+ hI=i;document.querySelectorAll(".thumb").forEach((b,k)=>b.classList.toggle("on",k===i));document.querySelectorAll("#dots i").forEach((d,k)=>d.classList.toggle("on",k===i));
+ const cn=$("cNow"),a=anim(cn,[{opacity:1,transform:"none"},{opacity:0,transform:"translateY(-12px)"}],{duration:260});const setN=()=>{cn.textContent="0"+(i+1);anim(cn,[{opacity:0,transform:"translateY(12px)"},{opacity:1,transform:"none"}],{duration:500})};if(a)a.onfinish=setN;else setN();
+ const sw=[$("carName"),$("f1"),$("f2")];sw.forEach(el=>el.classList.add("swap"));setTimeout(()=>{heroText();sw.forEach((el,k)=>setTimeout(()=>el.classList.remove("swap"),140+k*120))},reduce?0:480);restartHero()}
+function restartHero(){clearTimeout(hTimer);if(!reduce)hTimer=setTimeout(()=>setHero((hI+1)%HERO.length,1),6500)}
+$("thumbs").addEventListener("click",e=>{const b=e.target.closest(".thumb");if(b)setHero(+b.dataset.h)});
+$("hPrev").addEventListener("click",()=>setHero((hI-1+HERO.length)%HERO.length,-1));
+$("hNext").addEventListener("click",()=>setHero((hI+1)%HERO.length,1));
+heroR.addEventListener("click",e=>{if(!e.target.closest(".float,.perks"))openCar(HERO[hI])});
+heroR.addEventListener("mouseenter",()=>clearTimeout(hTimer));heroR.addEventListener("mouseleave",restartHero);
+let hx0=null;heroR.addEventListener("touchstart",e=>{hx0=e.touches[0].clientX},{passive:true});heroR.addEventListener("touchend",e=>{if(hx0===null)return;const dx=e.changedTouches[0].clientX-hx0;if(Math.abs(dx)>50){e.preventDefault();setHero(dx<0?(hI+1)%HERO.length:(hI-1+HERO.length)%HERO.length,dx<0?1:-1)}hx0=null});
+
+/* page-load intro */
+function intro(){if(reduce)return;const items=[...document.querySelectorAll(".top-in > *"),...document.querySelectorAll(".hero-l > *:not(.thumbs-wrap)"),document.querySelector(".thumbs-wrap")];
+ items.forEach((el,i)=>anim(el,[{opacity:0,transform:"translateY(28px)"},{opacity:1,transform:"none"}],{duration:1100,delay:80+i*70,fill:"backwards"}));
+ anim(heroR,[{clipPath:"inset(10% 10% 10% 10% round 32px)",opacity:.3},{clipPath:"inset(0 0 0 0 round 32px)",opacity:1}],{duration:1600,delay:150,fill:"backwards"});
+ [$("carName"),$("f1"),$("f2")].forEach((el,i)=>anim(el,[{opacity:0,transform:"translateY(20px)",filter:"blur(6px)"},{opacity:1,transform:"none",filter:"blur(0)"}],{duration:1000,delay:900+i*140,fill:"backwards"}))}
+
+/* search */
+function fillLocs(sel){sel.innerHTML=LOCS.map(l=>'<option value="'+l[0]+'">'+esc(t("l_"+l[0]))+"</option>").join("")}
+$("sFrom").value=toS(T+7);$("sTo").value=toS(T+10);[$("sFrom"),$("sTo")].forEach(i=>i.min=toS(T));
+let mode="driver",cat="all";
+$("sMode").addEventListener("click",e=>{const b=e.target.closest("button");if(b)setSeg($("sMode"),b.dataset.m)});
+$("sGo").addEventListener("click",()=>{const m=$("sMode").querySelector('[aria-pressed="true"]').dataset.m;go("fleet");setTimeout(()=>{if(m!==mode){mode=m;setSeg($("fMode"),mode);renderFleet(true)}},500)});
+$("sFrom").addEventListener("change",()=>{const a=toN($("sFrom").value),b=toN($("sTo").value);if(a!=null&&(b==null||b<=a))$("sTo").value=toS(a+1)});
+
+/* fleet: cards built once per language, filtered with FLIP so they glide into place */
+const show=c=>(cat==="all"||c.cat.includes(cat))&&(mode==="driver"||c.s>0);
+const priceTxt=c=>money(mode==="self"?c.s:c.d);
+function buildFleet(){const g=$("fleetGrid");g.innerHTML=CARS.map(c=>'<article class="car" tabindex="0" data-car="'+c.id+'"'+(show(c)?"":" hidden")+'><div class="ph"><img src="'+U(c.photos[0],800)+'" alt="'+esc(c.name)+'" loading="lazy"><span class="tagc">'+esc(t(c.catKey))+"</span>"+(c.s?"":'<span class="nodrv">'+esc(t("driver_only"))+"</span>")+'</div><div class="car-b"><h3>'+esc(c.name)+'</h3><div class="specs"><span><svg width="14" height="14"><use href="#i-seat"/></svg>'+esc(t("seats",{n:c.seats}))+'</span><span><svg width="14" height="14"><use href="#i-gear"/></svg>'+esc(t(c.gear))+'</span><span><svg width="14" height="14"><use href="#i-bag"/></svg>'+esc(t("bags",{n:c.bags}))+'</span></div><div class="car-f"><div class="price"><small class="pmode">'+esc(t(mode==="self"?"m_self":"m_driver"))+'</small><b><span class="pv">'+priceTxt(c)+'</span> <span class="u">'+esc(t("per_day"))+'</span></b></div><span class="go"><svg width="16" height="16"><use href="#i-ne"/></svg></span></div></div></article>').join("")+'<div class="empty" hidden>'+esc(t("empty"))+"</div>";guard(g)}
+let fBusy=0;
+function renderFleet(animate){const g=$("fleetGrid");if(!g.querySelector(".car"))buildFleet();
+ const cards=[...g.querySelectorAll(".car")],first=new Map();cards.forEach(c=>{if(!c.hidden)first.set(c,c.getBoundingClientRect())});
+ const leaving=cards.filter(c=>!c.hidden&&!show(carById(c.dataset.car)));
+ const swapPrices=()=>cards.forEach(c=>{const car=carById(c.dataset.car),pv=c.querySelector(".pv"),pm=c.querySelector(".pmode");pm.textContent=t(mode==="self"?"m_self":"m_driver");const v=priceTxt(car);if(pv.textContent!==v){if(animate&&!reduce){pv.classList.add("swap");setTimeout(()=>{pv.textContent=v;pv.classList.remove("swap")},240)}else pv.textContent=v}});
+ if(!animate||reduce){cards.forEach(c=>c.hidden=!show(carById(c.dataset.car)));swapPrices();g.querySelector(".empty").hidden=cards.some(c=>!c.hidden);return}
+ leaving.forEach(c=>c.classList.add("out"));clearTimeout(fBusy);
+ fBusy=setTimeout(()=>{let n=0;cards.forEach(c=>{c.hidden=!show(carById(c.dataset.car));c.classList.remove("out")});g.querySelector(".empty").hidden=cards.some(c=>!c.hidden);swapPrices();
+  cards.forEach(c=>{if(c.hidden)return;const f=first.get(c),l=c.getBoundingClientRect();
+   if(f&&!leaving.includes(c)){const dx=f.left-l.left,dy=f.top-l.top;if(dx||dy)anim(c,[{transform:"translate("+dx+"px,"+dy+"px)"},{transform:"none"}],{duration:850})}
+   else anim(c,[{opacity:0,transform:"translateY(30px) scale(.94)"},{opacity:1,transform:"none"}],{duration:950,delay:80+(n++)*85,fill:"backwards"})})},leaving.length?300:0)}
+$("cats").addEventListener("click",e=>{const b=e.target.closest("button");if(!b||b.dataset.c===cat)return;cat=b.dataset.c;$("cats").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));renderFleet(true)});
+$("fMode").addEventListener("click",e=>{const b=e.target.closest("button");if(!b||b.dataset.m===mode)return;mode=b.dataset.m;setSeg($("fMode"),mode);setSeg($("sMode"),mode);renderFleet(true)});
+$("fleetGrid").addEventListener("click",e=>{const c=e.target.closest(".car");if(c)openCar(c.dataset.car)});
+$("fleetGrid").addEventListener("keydown",e=>{const c=e.target.closest(".car");if(c&&(e.key==="Enter"||e.key===" ")){e.preventDefault();openCar(c.dataset.car)}});
+document.querySelectorAll("[data-setmode]").forEach(b=>b.addEventListener("click",()=>{const m=b.dataset.setmode;go("fleet");setTimeout(()=>{mode=m;cat="all";setSeg($("fMode"),mode);setSeg($("sMode"),mode);$("cats").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.c==="all")));renderFleet(true)},550)}));
+
+/* packages */
+function renderPkgs(){$("pkgs").innerHTML=PKGS.map(p=>'<article class="pkg"><div class="ph"><img src="'+U(p.img,800)+'" alt="" loading="lazy"></div><div class="pkg-b"><h3>'+esc(t(p.k+"_t"))+"</h3><p>"+esc(t(p.k+"_p"))+'</p></div><div class="pp"><div><small>'+esc(t("from"))+"</small><b>"+money(p.price)+' <span class="u">'+esc(t(p.unit))+'</span></b></div><a class="btn wa sm" href="'+waHref(t("wa_pkg",{pkg:t(p.k+"_t")}))+'" target="_blank" rel="noopener"><svg width="16" height="16"><use href="#i-chat"/></svg>'+esc(t("pkg_btn"))+"</a></div></article>").join("");guard($("pkgs"))}
+
+/* terms */
+let tMode="driver",tOpen=0;
+function renderTerms(){$("tacc").innerHTML=TERMS[tMode].map((k,i)=>'<li class="'+(i===tOpen?"open":"")+'"><button type="button" data-i="'+i+'" aria-expanded="'+(i===tOpen)+'"><span>'+esc(t(k))+'</span><span class="pm"><svg width="16" height="16"><use href="#i-plus"/></svg></span></button><div class="tbody"><div><ul>'+t(k+"a").split("|").map(x=>"<li>"+esc(x)+"</li>").join("")+"</ul></div></div></li>").join("")}
+$("tacc").addEventListener("click",e=>{const b=e.target.closest("button[data-i]");if(!b)return;const i=+b.dataset.i;tOpen=tOpen===i?-1:i;$("tacc").querySelectorAll(":scope > li").forEach((li,k)=>{li.classList.toggle("open",k===tOpen);li.querySelector("button").setAttribute("aria-expanded",String(k===tOpen))})});
+function switchTerms(m){if(m===tMode)return;tMode=m;tOpen=0;setSeg($("tMode"),m);const el=$("tacc");el.classList.add("swap");setTimeout(()=>{renderTerms();el.classList.remove("swap");if(!reduce)stagger(el,60)},reduce?0:320)}
+$("tMode").addEventListener("click",e=>{const b=e.target.closest("button");if(b)switchTerms(b.dataset.m)});
+
+/* areas */
+function renderAreas(){$("alist").innerHTML=LOCS.map(l=>"<div><dt>"+esc(t("l_"+l[0]))+'</dt><dd class="'+(l[1]?"":"free")+'">'+(l[1]?"+"+money(l[1]):esc(t("free")))+"</dd></div>").join("")}
+
+/* car modal */
+let cur=null,mMode="driver",gI=0,lastFocus=null,lastTotal=null;
+for(let i=1;i<=7;i++){const o=document.createElement("option");o.value=i;o.textContent=i;$("mPax").appendChild(o)}
+[$("mFrom"),$("mTo")].forEach(i=>i.min=toS(T));
+function openCar(id){cur=carById(id);lastFocus=document.activeElement;gI=0;lastTotal=null;
+ mMode=(mode==="self"&&cur.s)?"self":"driver";
+ $("mFrom").value=$("sFrom").value;$("mTo").value=$("sTo").value;$("mLoc").value=$("sLoc").value;$("mPax").value=Math.min(2,cur.seats);$("mErr").hidden=true;$("agree").checked=false;
+ const main=$("mMain");main.querySelectorAll("img").forEach(i=>i.remove());
+ cur.photos.forEach((p,i)=>{const im=document.createElement("img");im.src=U(p,1400);im.alt=cur.name;if(i===0)im.className="show";main.insertBefore(im,$("mPrev"))});
+ $("mThumbs").innerHTML=cur.photos.map((p,i)=>'<button type="button" class="ph'+(i===0?" on":"")+'" data-i="'+i+'" aria-label="Photo '+(i+1)+'"><img src="'+U(p,300)+'" alt=""></button>').join("");
+ guard($("carModal"));fillCar(true);
+ [...document.querySelectorAll("#carModal .m-gal > *, #carModal .m-info > *")].forEach((el,i)=>el.style.setProperty("--i",i));
+ $("carModal").querySelector(".m-panel").scrollTop=0;
+ requestAnimationFrame(()=>{$("carModal").classList.add("open");moveKnob($("mMode"),true)});
+ document.body.classList.add("lock");if(lenis)lenis.stop();clearTimeout(hTimer);setTimeout(()=>$("carModal").querySelector(".m-close").focus({preventScroll:true}),80)}
+function fillCar(instant){if(!cur)return;$("mCat").textContent=t(cur.catKey);$("mName").textContent=cur.name;$("mDesc").textContent=t("d_"+cur.id);
+ $("mSpec").innerHTML=[["sp_year",cur.year],["sp_seats",cur.seats],["sp_gear",t(cur.gear)],["sp_fuel",t(cur.fuel)]].map(s=>"<div><span>"+esc(t(s[0]))+"</span><b>"+esc(s[1])+"</b></div>").join("");
+ $("mRateD").textContent=money(cur.d)+" "+t("per_day");$("mRateS").textContent=cur.s?money(cur.s)+" "+t("per_day"):t("no_self");
+ $("mMode").querySelector('[data-m="self"]').disabled=!cur.s;$("mMode").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.m===mMode)));
+ const sw=$("selfWrap");if(instant){sw.style.transition="none";sw.classList.toggle("shut",mMode!=="self");void sw.offsetWidth;sw.style.transition=""}else sw.classList.toggle("shut",mMode!=="self");
+ $("xProtWrap").hidden=mMode!=="self";if(mMode!=="self")$("xProt").checked=false;
+ gShow();calc()}
+function gShow(){const ims=[...$("mMain").querySelectorAll("img")];ims.forEach((im,i)=>im.classList.toggle("show",i===gI));$("mThumbs").querySelectorAll("button").forEach((b,i)=>b.classList.toggle("on",i===gI));$("mCount").textContent=t("photo_n",{i:gI+1,n:ims.length})}
+function gStep(d){const n=cur.photos.length;gI=(gI+d+n)%n;gShow()}
+function countTo(el,from,to){if(reduce||from===null||from===to){el.textContent=money(to);return}const t0=performance.now(),dur=700;const st=now=>{const p=Math.min(1,(now-t0)/dur),e=1-Math.pow(1-p,3);el.textContent=money(from+(to-from)*e);if(p<1)requestAnimationFrame(st)};requestAnimationFrame(st)}
+function calc(){if(!cur)return null;const a=toN($("mFrom").value),b=toN($("mTo").value),rate=mMode==="self"?cur.s:cur.d,loc=LOCS.find(l=>l[0]===$("mLoc").value)||LOCS[0];
+ let err=null;const n=(a!=null&&b!=null)?b-a:0;
+ if(a==null||b==null||n<1)err=t("e_dates");else if(a<T)err=t("e_past");else if(+$("mPax").value>cur.seats)err=t("e_pax",{n:cur.seats});
+ const days=Math.max(1,n),base=rate*days,seat=$("xSeat").checked?100000*days:0,prot=(mMode==="self"&&$("xProt").checked)?250000*days:0,total=base+loc[1]+seat+prot;
+ const row=(l,v)=>'<div class="row"><span>'+esc(l)+"</span><span>"+v+"</span></div>";
+ $("sum").innerHTML=row(t("s_days",{rate:money(rate),n:days}),money(base))+row(t("s_deliv",{loc:t("l_"+loc[0])}),loc[1]?money(loc[1]):esc(t("free")))+(seat?row(t("s_seat"),money(seat)):"")+(prot?row(t("s_prot"),money(prot)):"")+'<div class="tot"><span>'+esc(t("s_total"))+'</span><b id="sumTot"></b></div>'+(mMode==="self"&&cur.dep?'<span class="dep">'+esc(t("s_dep",{dep:money(cur.dep)}))+"</span>":"");
+ countTo($("sumTot"),lastTotal,total);lastTotal=total;
+ const extras=[seat?t("s_seat"):null,prot?t("s_prot"):null].filter(Boolean).join(", ")||t("wa_none");
+ const idl=mMode==="self"?(document.querySelector('input[name="nat"]:checked').value==="wna"?t("wa_ida"):t("wa_idw")):"";
+ const msg=t("wa_book",{car:cur.name,mode:t(mMode==="self"?"m_self":"m_driver"),from:a!=null?fmtD(a):"-",to:b!=null?fmtD(b):"-",n:days,loc:t("l_"+loc[0]),pax:$("mPax").value,extras,total:money(total),dep:(mMode==="self"&&cur.dep)?t("wa_dep",{dep:money(cur.dep)}):"",idl,name:$("mNameIn").value.trim()||"-"});
+ $("mWa").href=waHref(msg);
+ if(!err&&!$("mNameIn").value.trim())err=t("e_name");
+ if(!err&&mMode==="self"&&!$("agree").checked)err=t("e_agree");
+ $("mWa").setAttribute("aria-disabled",String(!!err));return err}
+["mFrom","mTo","mLoc","mPax","xSeat","xProt","agree","natW","natA"].forEach(id=>$(id).addEventListener("change",()=>{if(id==="mFrom"){const a=toN($("mFrom").value),b=toN($("mTo").value);if(a!=null&&(b==null||b<=a))$("mTo").value=toS(a+1)}$("mErr").hidden=true;calc()}));
+$("mNameIn").addEventListener("input",()=>{$("mErr").hidden=true;calc()});
+$("mMode").addEventListener("click",e=>{const b=e.target.closest("button");if(!b||b.disabled||b.dataset.m===mMode)return;mMode=b.dataset.m;fillCar(false)});
+$("mWa").addEventListener("click",e=>{const err=calc();if(err){e.preventDefault();$("mErr").textContent=err;$("mErr").hidden=false;anim($("mErr"),[{transform:"translateX(0)"},{transform:"translateX(-6px)"},{transform:"translateX(6px)"},{transform:"translateX(0)"}],{duration:380})}});
+$("seeTerms").addEventListener("click",()=>{closeCar();setTimeout(()=>{go("terms");setTimeout(()=>switchTerms("self"),700)},300)});
+$("mPrev").addEventListener("click",()=>gStep(-1));$("mNext").addEventListener("click",()=>gStep(1));
+$("mThumbs").addEventListener("click",e=>{const b=e.target.closest("button");if(b){gI=+b.dataset.i;gShow()}});
+function closeCar(){if(!$("carModal").classList.contains("open"))return;$("carModal").classList.remove("open");document.body.classList.remove("lock");if(lenis)lenis.start();restartHero();if(lastFocus&&lastFocus.focus)lastFocus.focus({preventScroll:true})}
+$("carModal").addEventListener("click",e=>{if(e.target===$("carModal")||e.target.closest("[data-close]"))closeCar()});
+document.addEventListener("keydown",e=>{if(!$("carModal").classList.contains("open"))return;if(e.key==="Escape")closeCar();if(e.key==="ArrowRight"&&e.target.tagName!=="INPUT")gStep(1);if(e.key==="ArrowLeft"&&e.target.tagName!=="INPUT")gStep(-1)});
+let tx0=null;$("mMain").addEventListener("touchstart",e=>{tx0=e.touches[0].clientX},{passive:true});$("mMain").addEventListener("touchend",e=>{if(tx0===null)return;const dx=e.changedTouches[0].clientX-tx0;if(Math.abs(dx)>50)gStep(dx<0?1:-1);tx0=null});
+
+/* language */
+function applyAll(){document.documentElement.lang=lang==="zh"?"zh-Hans":lang;
+ document.querySelectorAll("[data-i18n]").forEach(el=>el.textContent=t(el.dataset.i18n));
+ document.querySelectorAll("[data-i18n-html]").forEach(el=>el.innerHTML=t(el.dataset.i18nHtml));
+ document.querySelectorAll("[data-idr]").forEach(el=>el.textContent=money(+el.dataset.idr));
+ document.querySelectorAll("[data-lang]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.lang===lang)));
+ document.querySelectorAll(".wa-link").forEach(a=>a.href=waHref(t("wa_general")));
+ const sl=$("sLoc").value,ml=$("mLoc").value;fillLocs($("sLoc"));fillLocs($("mLoc"));if(sl)$("sLoc").value=sl;if(ml)$("mLoc").value=ml;
+ heroText();buildFleet();renderFleet(false);renderPkgs();renderTerms();renderAreas();lastTotal=null;fillCar(true);
+ requestAnimationFrame(()=>knobSegs().forEach(s=>moveKnob(s,true)))}
+$("langSeg").addEventListener("click",e=>{const b=e.target.closest("button[data-lang]");if(!b||b.dataset.lang===lang)return;lang=b.dataset.lang;try{localStorage.setItem("saka-lang",lang)}catch(err){}
+ const main=document.querySelector("main");const a=anim(main,[{opacity:1,filter:"blur(0)"},{opacity:.25,filter:"blur(3px)"}],{duration:220});const done=()=>{applyAll();anim(main,[{opacity:.25,filter:"blur(3px)"},{opacity:1,filter:"blur(0)"}],{duration:520})};if(a)a.onfinish=done;else done()});
+guard();applyAll();intro();restartHero();
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>knobSegs().forEach(s=>moveKnob(s,true)));
+})();
+</script>
+</body>
+</html>
